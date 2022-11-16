@@ -1,0 +1,83 @@
+---
+title: "About"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+# Academic Experience
+### Mailman School of Public Health, Columbia University 
+#### New York, NY  
+Masters of Biostatistics,                         Expected May 2024\
+Relevant coursework: Longitudinal Analysis, Data Science I, Probability, Epidemiology
+  
+### Binghamton University, The State University of New York
+#### Binghamton, NY
+Bachelors of Science in Mathematics and Economics,        May 2022\
+Relevant coursework: Regression Models, Statistical Learning, Complex Variables, Real Analysis, Econometrics, Forecasting, Game Theory
+
+### University at Buffalo, The State University of New York
+#### Buffalo, NY
+Coursework in Pharmacy and Mathematics,         Jul 2018 - May 2019
+
+
+# Research Experience
+### Research Assistant, Columbia University
+#### Mental Health Data Science
+#### Oct 2022 - present
+* Perform data tidying, cleaning, and organizing to raw data for analysis.
+* Generate visualizations to capture the patterns of independent binary variable.
+* Apply advanced statistical methods such as Clustering Analysis for the project.
+* Meet with project supervisor on a biweekly basis to ensure project's success.
+
+
+### Predicting the in hospital Mortality Rate of Patients with Covid-19, Binghamton University
+#### Statistical Learning Research Project
+#### Oct 2021 - Dec 2021
+* Applied Log Rank Test to test difference in survival between independent groups.
+* Estimated the survival time using Kaplan-Meier Curve and explained the variable importance using Cox’s proportional Hazard ratio.
+* Split the dataset into training and test sets, and use the logistic regression model, LDA, Naive Bayes, KNN, Boosting, SVM, and Lasso, to predict the response variable in R.
+* Compared the test error rate among the classification models to find the best model with minimum test error.
+
+
+### Analysis of Demand of Bike Sharing System, Binghamton University
+#### Intro to Regression Research Project
+#### Jan 2021 - May 2021
+* Improved the stability of the multiple linear regression model by eliminating multicollinearity and unusual observations of the datasets through R.
+* Generated the best fit model by assessing model selection methods such as Bayesian Information Criterion, Lasso, and Dimension Reduction.
+* Tested whether the smaller model is as good as the full model using ANOVA and applied transformation to the response variable when the normality assumption did not hold.
+
+# Teaching Experience
+### The Department of Economics, Binghamton University
+#### Teaching Assistant of Macroeconomics Theory
+#### Aug 2021 - Dec 2021
+* Supported the instructor with test administration, curriculum development, and grading.
+* Delivered assessment activities directed towards subjects in weekly discussion sections. 
+* Mitigated the learning gaps and addressed students’ concerns by answering questions related to the course through emails and office hours.
+
+# Professional Experience
+### Excellus BlueCross BlueShield, Rochester, NY
+#### Actuarial Intern, Stop Loss Department
+#### Jun 2021 - Aug 2021
+* Created a Power BI Dashboard using HCC data from 2017-2021. The dashboard provided information on trends for large claim diagnoses and allowed the stop loss team to understand the impact of large claims.
+* Visualized the relationship between large claims and expected payment times using scatter plots, frequency distributions, histograms, and quarterly and yearly reports within Power BI.
+* Analyzed the High-Cost Claimants data from 2017 - 2021 to spot trends and patterns of cancer groups that can be translated into data visualizations in Power BI for Excellus BlueCross BlueShield.
+
+# Relevant Skills
+#### Computing: 
+* Proficient in R, LaTex, Excel, PowerPoint, and Word.
+* Intermediate in Power BI, SAS, Python, and Stata.
+
+#### Languages: 
+* English - Fluent in verbal and written.
+* Chinese - Native in verbal and written.
+
+# Honors and Awards
+* Magna Cum Laude, Binghamton University     
+* Actuarial Science Award, Binghamton University
+* McNair Scholar, Binghamton University      
+* Dean’s List, Binghamton University
+* Pi Mu Epsilon, National Math Honor Society 
+* Dean’s List, University at Buffalo
+* Highest Academic Achievement in Calculus, University at Buffalo
+

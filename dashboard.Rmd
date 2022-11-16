@@ -1,0 +1,87 @@
+---
+title: "Dashboard"
+type: inverse
+output: 
+  flexdashboard::flex_dashboard:
+    theme: flatly
+    orientation: columns
+    vertical_layout: fill
+    
+---
+
+```{js}
+$('.navbar-inverse').removeClass('navbar-inverse').addClass('navbar-default');
+```
+
+
+```{r, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(p8105.datasets)
+library(plotly)
+```
+
+```{r, include = FALSE, message = FALSE, warning = FALSE}
+data("instacart")
+instacart_df = 
+  instacart %>% 
+  select(add_to_cart_order, order_id, reordered, order_hour_of_day, product_name, aisle_id, department_id, aisle, department) %>% 
+  filter(reordered == 1, department %in% c("produce", "meat seafood", "dairy eggs", "snacks", "frozen")) %>% 
+  filter(department != "missing")
+```
+
+Column {data-width=600}
+-----------------------------------------------------------------------
+
+### Barplot of the Most Popular Aisles
+
+```{r}
+instacart %>%
+  count(aisle, name = "n_items") %>%
+  arrange(desc(n_items)) %>%
+  filter(n_items >= 10000) %>%
+  mutate(aisle = fct_reorder(aisle, n_items)) %>%
+  plot_ly(x = ~aisle, y = ~ n_items, color = ~ aisle, type = "bar") %>%
+  layout(title = "Number of Items in each Aisle",
+    xaxis = list(title = "aisle"),
+    yaxis = list(title = "number of items"),
+    legend = list(title = list(text = "<b> Aisles </b>")),
+    barmode = "stack")
+```
+
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### Scatter plot of Purchase Time
+
+```{r}
+instacart_df %>% 
+  group_by(order_hour_of_day, department) %>%
+  summarise(n_ordered = n()) %>% 
+  mutate(
+    text_label = str_c("Hour: ", order_hour_of_day, "\nNumber Ordered: ", n_ordered, "\nDepartment: ", department)) %>% 
+  plot_ly(
+    y = ~ n_ordered, x = ~order_hour_of_day, color = ~department, text = ~text_label, type = "scatter", colors = "viridis") %>% 
+  layout(title = "Item Purchased Time by Department",
+         yaxis = list(title = "Number of Items Ordered"), 
+         xaxis = list(title = "Hour of Day (0-23)"), 
+         legend = list(title = list(text = "<b> Department </b>")))
+```
+
+### Boxplot of Average Purchase Time of Selected Items
+
+```{r}
+instacart %>% 
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream", "Banana", "Strawberries", "Blueberries", "Organic Baby Spinach", "Small Dog Biscuits")) %>%
+  group_by(product_name, order_dow) %>% 
+  plot_ly(y = ~order_hour_of_day, color = ~product_name, type = "box", colors = "viridis") %>%
+  layout(title = "Average Purchase Time of Selected Items",
+    yaxis = list(title = "Hour of the day (0-23)"), 
+    xaxis = list(title = "Product"), 
+    legend = list(title = list(text = "<b> Product Name </b>")))
+```
+
+```{r, eval = FALSE}
+rmarkdown::render("dashboard.Rmd", output_format = "flexdashboard::flex_dashboard")
+```
