@@ -6,7 +6,7 @@ navbar:
     - text: "About"
       href: about.html
     - text: "Overview"
-      href: intro_page.html
+      href: proposal.html
     - text: "Data Pre-Processing"
       href: intro_page.html
     - text: "Exploratory Data Analysis"
