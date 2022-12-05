@@ -4,7 +4,7 @@ navbar:
   title: "Home"
   right:
     - text: "About"
-      href: about.html
+      href: proposal.html
     - text: "Overview"
       href: proposal.html
     - text: "Data Pre-Processing"
@@ -17,8 +17,6 @@ navbar:
       href: dashboard.html    
     - text: "Project Report"
       href: project_report.html 
-    - text: "Template"
-      href: index_2.html 
     - icon: <i class="fa fa-youtube-play fa-lg"></i> fa-lg
       href: youtube.html 
     - icon: fa-envelope fa-lg
