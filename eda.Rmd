@@ -1,0 +1,114 @@
+---
+title: "Exploratory Data Analysis"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    code_folding: hide
+---
+
+```{r defaults, echo = FALSE, message = FALSE, warning = FALSE}
+library(survivoR)
+library(tidyverse)
+library(stringr)
+library(dplyr)
+library(survival)
+library(survminer)
+library(gtsummary)
+```
+
+```{r}
+## reading in data
+survivor_data_final = 
+  read.csv("data/survivor_data_final.csv")
+```
+
+## EDA Tables
+```{r}
+## overall summary table
+survivor_data_final %>% 
+  select(gender, poc, personality_type_binary, age_during_show, days_survived) %>% 
+  tbl_summary(type = list(gender~ "categorical", poc~ "categorical", personality_type_binary~ "categorical", age_during_show ~ "continuous", days_survived ~ "continuous"), 
+              statistic = list(all_continuous() ~ "{mean} ({sd})"), 
+              label = list(c(gender) ~ "Gender",
+                           c(poc) ~ "Race Identifier",
+                           c(personality_type_binary) ~ "Personality Type",
+                           c(age_during_show) ~ "Age During Show (Years)",
+                           c(days_survived) ~ "Survival Time on Show (Days)")) %>% 
+  bold_labels() 
+
+
+## days survived by variables of interest (planning to add tabs for these 3 tables)
+
+## personality type
+survivor_data_final %>% 
+  group_by(personality_type_binary) %>% 
+  summarize(n_personality_type = n(),
+            mean_days_survived = mean(days_survived)) %>% 
+    na.omit()  %>%
+  knitr::kable(digits = 3, col.names = c("Personality Type", "n", "Mean Days Survived"))
+
+## POC
+survivor_data_final %>% 
+  group_by(poc) %>% 
+  summarize(n_poc = n(),
+            mean_days_survived = mean(days_survived, na.rm = TRUE)) %>% 
+    na.omit()  %>%
+  knitr::kable(digits = 3, col.names = c("POC", "n", "Mean Days Survived"))
+
+
+## gender
+survivor_data_final %>% 
+  group_by(gender) %>% 
+  summarize(n_gender= n(),
+            mean_days_survived = mean(days_survived, na.rm = TRUE)) %>%
+    na.omit()  %>%
+  knitr::kable(digits = 3, col.names = c("Gender", "n", "Mean Days Survived"))
+```
+
+## Change in Diversity (POC)
+```{r, warning = FALSE, message = FALSE}
+survivor_poc_over_time = survivor_data_final %>% 
+  group_by(version_season, poc) %>%
+  summarize(count = n()) %>%
+  mutate(freq = count / sum(count)) %>%
+  filter(poc == "POC") %>%
+  separate(col = version_season, into = c('NA', 'season'), sep = 2) %>%
+  dplyr::select(-"NA") %>%
+  mutate(season = as.numeric(season))
+
+ggplot(data = survivor_poc_over_time, aes(x = season, y = freq, group = 1)) +
+  geom_line() +
+  geom_point() +
+  geom_smooth(se = FALSE) + 
+  ggtitle("Change in Proportion of POC Over Time ") +
+  xlab("Season") + ylab("Proportion of POC")
+```
+
+## Change in Diversity (Gender)
+```{r, warning = FALSE, message = FALSE}
+survivor_gender_over_time = survivor_data_final %>% 
+  group_by(version_season, gender) %>%
+  summarize(count = n()) %>%
+  mutate(freq = count / sum(count)) %>%
+  filter(gender == "Female") %>%
+  separate(col = version_season, into = c('NA', 'season'), sep = 2) %>%
+  dplyr::select(-"NA") %>%
+  mutate(season = as.numeric(season))
+
+ggplot(data = survivor_gender_over_time, aes(x = season, y = freq, group = 1)) +
+  geom_line() +
+  geom_point() +
+  geom_smooth(se = FALSE) + 
+  ggtitle("Change in Proportion of Women Over Time") +
+  xlab("Season") + ylab("Proportion of Women")
+```
+
+```{r}
+ggplot(survivor_data_final, aes(x = age_during_show)) + 
+  geom_histogram(bins = 15) + 
+  ggtitle("Distribution of Ages") +
+  xlab("Age (During Show)") + ylab("Count")
+```
+
