@@ -13,6 +13,8 @@ navbar:
       href: eda.html
     - text: "Statistical Analysis"
       href: stat.html    
+    - text: "Dashboard"
+      href: dashboard.html    
     - text: "Project Report"
       href: project_report.html 
     - text: "Template"
