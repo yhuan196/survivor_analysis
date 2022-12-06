@@ -88,7 +88,7 @@ ggplot(data = survivor_poc_over_time, aes(x = season, y = freq, group = 1)) +
 ```
 
 ## Change in Diversity (Gender)
-```{r, warning = FALSE, message = FALSE}
+```{r}
 survivor_gender_over_time = survivor_data_final %>% 
   group_by(version_season, gender) %>%
   summarize(count = n()) %>%
@@ -114,23 +114,22 @@ ggplot(survivor_data_final, aes(x = age_during_show)) +
 ```
 
 ## Confessionals per Season
-```{r}
+```{r, warning = FALSE, message = FALSE}
 confessionals_df = confessionals %>% 
   filter(version == "US") %>%
   dplyr::select(-c(version, version_season, season_name))
 seasons = list()
-for(i in 1:43)
+for (i in 1:43)
 {
   seasons[[i]] = confessionals_df %>%
     filter(season == i) %>% 
     group_by(castaway)
 }
-for(i in 1:43)
+for (i in 1:43)
 {
   print(ggplot(data = seasons[[i]], aes(x = episode, y = confessional_count, color = castaway)) +
     geom_line() +
     geom_point() +
     ggtitle(paste0("Confessionals per Episode in Season ", i)) +
-    xlab("Episode") + ylab("Number of Confessionals"))
-}
+    xlab("Episode") + ylab("Number of Confessionals"))}
 ```
