@@ -1,0 +1,29 @@
+name: "Home"
+output_dir: "."
+navbar:
+  title: "Home"
+  right:
+    - text: "Overview"
+      href: proposal.html
+    - text: "Data Pre-Processing"
+      href: intro_page.html
+    - text: "Exploratory Data Analysis"
+      href: eda.html
+    - text: "Statistical Analysis"
+      href: stat.html    
+    - text: "Dashboard"
+      href: dashboard.html
+    - text: "Shiny"
+      href: https://shouldi.shinyapps.io/survivor_shiny/
+    - text: "Project Report"
+      href: project_report.html 
+    - icon: <i class="fa fa-youtube-play fa-lg"></i> fa-lg
+      href: youtube.html 
+    - icon: fa-envelope fa-lg
+      href: mailto:<yh3554@cumc.columbia.edu>
+    - icon: fa-github fa-lg
+      href: http://github.com/enp2116/p8105_final_project_enp_si_fir_yh_jc/
+      
+output:
+  html_document:
+    theme: flatly
