@@ -11,8 +11,6 @@ navbar:
       href: eda.html
     - text: "Statistical Analysis"
       href: stat.html    
-    - text: "Dashboard"
-      href: dashboard.html
     - text: "Shiny"
       href: https://shouldi.shinyapps.io/survivor_shiny/
     - text: "Project Report"
