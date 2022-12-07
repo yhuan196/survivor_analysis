@@ -12,7 +12,9 @@ navbar:
     - text: "Statistical Analysis"
       href: stat.html    
     - text: "Dashboard"
-      href: dashboard.html    
+      href: dashboard.html
+    - text: "Shiny"
+      href: https://shouldi.shinyapps.io/survivor_shiny/
     - text: "Project Report"
       href: project_report.html 
     - icon: <i class="fa fa-youtube-play fa-lg"></i> fa-lg
