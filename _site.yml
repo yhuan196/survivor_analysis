@@ -5,8 +5,6 @@ navbar:
   right:
     - text: "Overview"
       href: proposal.html
-    - text: "Data Pre-Processing"
-      href: intro_page.html
     - text: "Exploratory Data Analysis"
       href: eda.html
     - text: "Statistical Analysis"
