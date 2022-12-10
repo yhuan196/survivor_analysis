@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Survivor(al) Analysis: Impacts of Demographics on Game Show Contestant Survival</title>
+
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="overview.html">Overview</a>
+</li>
+<li>
+  <a href="eda.html">Exploratory Data Analysis</a>
+</li>
+<li>
+  <a href="stat.html">Statistical Analysis</a>
+</li>
+<li>
+  <a href="https://shouldi.shinyapps.io/survivor_shiny/">Shiny</a>
+</li>
+<li>
+  <a href="project_report.html">Project Report</a>
+</li>
+<li>
+  <a href="youtube.html">
+    <span class="&lt;i class=&quot;fa fa &lt;i class=&quot;fa fa-youtube-play fa-lg&quot;&gt;&lt;/i&gt; fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="mailto:&lt;yh3554@cumc.columbia.edu&gt;">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="http://github.com/enp2116/p8105_final_project_enp_si_fir_yh_jc/">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Survivor(al) Analysis: Impacts of
+Demographics on Game Show Contestant Survival</h1>
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<div id="motivation" class="section level3">
+<h3>Motivation</h3>
+<p>In this report, we utilize survival analysis to explore the
+implications of known race, gender, and personality type to game show
+survival. In particular, we focus on the American classic TV series
+<em>Survivor</em>, which is currently on its 43rd season. In each season
+of the show, 16 to 18 contestants are divided into tribes and navigate
+challenges within these social alliances in order to promote their own
+survival.<a href="#fn1" class="footnote-ref"
+id="fnref1"><sup>1</sup></a> Throughout each season, contestants are
+progressively eliminated by vote of their peers until there is a sole
+survivor. Given that aspects of identity heavily influence how people
+are perceived in a social context, we hypothesize that contestant
+outcomes may differ on the measures related to retention or screen
+time.</p>
+</div>
+<div id="related-work" class="section level3">
+<h3>Related Work</h3>
+<p>While survival analysis is a statistical methodology typically used
+in health fields to understand the time to an event of interest (such as
+death, myocardial infarction, or cancer recurrence)<a href="#fn2"
+class="footnote-ref" id="fnref2"><sup>2</sup></a>, we are able to
+utilize the number of days survived on <em>Survivor</em> as our main
+outcome of interest. Our inspiration for this project came from a small
+scale paper studying the effects of demographics in <em>Masterchef
+Junior</em> contestant survival rates.<a href="#fn3"
+class="footnote-ref" id="fnref3"><sup>3</sup></a> This research looked
+at race and gender to determine the outcome of percent of season
+survived, with the additional analysis to look at the impact of a female
+judge on these survival rates. While the TV series <em>Survivor</em> and
+<em>Masterchef Junior</em> differ in their elimination processes, both
+our studies explore the intricacies of societal bias and how that plays
+into game show success.</p>
+</div>
+<div id="initial-questions" class="section level3">
+<h3>Initial Questions</h3>
+<p>Our initial goal was to investigate the extent to which gender, race,
+and personality have led to differences in days survived on
+<em>Survivor</em>. Based on cultural norms in the U.S., we hypothesized
+that contestants who are white, male, or extroverts would have the
+longest survival time. In determining a lack of results on these
+measures, we decided to integrate geographic comparisons as well for
+survival time. More additional questions arose throughout the course of
+our research. We determined that another component of entertainment
+culture was not only how long the contestants stayed on the show, but
+how much individualized screen time they received while there. Thus, we
+decided to explore the frequency of confessionals as supplementary
+analyses. Finally, in more recent years (in alignment with the Black
+Lives Matter movement in the U.S.), <em>Survivor</em> has made the
+effort to encourage more diversity within their casts. To this end, we
+also wanted to visually see if contestants had representation that
+evolved over the 42 seasons. In this paper, we consider all these
+aspects as part of a comprehensive investigation of demographics on game
+show survival.</p>
+</div>
+</div>
+<div id="data-sources-cleaning" class="section level1">
+<h1>Data Sources &amp; Cleaning</h1>
+<p>In order to analyze the show <em>Survivor</em>, we used data sources
+from the <code>castaway_details</code> and <code>castaways</code>
+datasets<a href="#fn4" class="footnote-ref"
+id="fnref4"><sup>4</sup></a>, as well as others, from the
+<code>survivoR</code> package.<a href="#fn5" class="footnote-ref"
+id="fnref5"><sup>5</sup></a> This fan-made package contains data from
+all seasons of <em>Survivor</em>. According to the authors of the
+package, “the data was sourced from Wikipedia and the Survivor Wiki.
+Other data, such as the tribe colours, was manually recorded and entered
+by myself and contributors.” As each dataset contained distinct
+information on the contestants for each season, it was necessary to use
+joins to combine datasets to produce a final dataset to be analyzed.
+This was performed using a full join on the contestants’ full names. We
+primarily rely on contestant occurrences as the unit of analysis in our
+report, though it should be noted that distinct individuals can appear
+in multiple seasons and/or in multiple episodes per season.
+Additionally, in order to standardize our results for the survival
+analysis and exploratory data analysis, we removed seasons 2, 41, 42,
+and 43 as the seasons contained data for a different number of days from
+the standard 39 days. As the original data contains information from
+several versions around the globe, it was integral to filter and only
+analyze data from the U.S. edition. In order to best model our
+covariates of interest, we then created a new personality type variable
+(extracting whether a person is an introvert or extrovert) and a POC
+indicator variable (provided by the package) instead of individual
+races. We also used contestants’ home states to code contestants into a
+region based on census regions and divisions of the United States.<a
+href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>
+Furthermore, we determined that missing data was not an issue, as it
+occurred in low frequency and was not patterned in nature. The final
+dataset used in the analysis contains unique information for each
+castaway for each season, including the following key variables:</p>
+<ul>
+<li><code>version_season</code>: version and season number</li>
+<li><code>full_name</code>: contestant full name</li>
+<li><code>age_during_show</code> : age, in years</li>
+<li><code>poc</code> : POC indicator, if known. Else, marked as
+White.</li>
+<li><code>gender</code>: 2 levels: Female, Male.</li>
+<li><code>personality_type_binary</code> : Extracted from the
+Myer-Briggs personality type of the castaway. 2 levels: Extrovert,
+Introvert.</li>
+<li><code>days_survived</code>: Number of days survived in the show
+until elimination</li>
+<li><code>region</code>: region in the U.S. where the contestant is
+from. We created this variable based on the <code>state</code> variable
+available in the dataset. 4 levels: West, Midwest, Northeast, South.
+Indicator variables for each of the 4 regions have also been created for
+analyses.</li>
+</ul>
+<p>As a supplemental analysis, we also used the
+<code>confessionals</code> data from the same <code>survivoR</code>
+package to visualize the number of confessionals each contestant
+received. This data looked at all seasons as it was unrelated to the
+survival analysis and consistency in the datasets was not necessary.
+Nevertheless, this data also only looked at the U.S. edition of the
+show.</p>
+</div>
+<div id="exploratory-analysis" class="section level1">
+<h1>Exploratory Analysis</h1>
+<p>We performed exploratory data analysis to visualize the distributions
+of our variables of interest, including POC, gender, personality type,
+age, and geographic location. In order to best depict the true nature of
+our data, we used a combination of tables and plots, depending on which
+method we believed to be most effective. In our summary demographic
+table, we specifically count contestant occurrences, while noting that
+distinct individuals can recur across multiple seasons or episodes
+within a season.</p>
+<div id="table-1-summary-statistics" class="section level2">
+<h2>Table 1: Summary Statistics</h2>
+<center>
+<p><img src="table_1_new.png" width="400" /></p>
+</center>
+<p><em>Note: N = 728 refers to the total count of records
+(i.e. contestant occurrences) in <code>survivor_data_final</code>;
+distinct persons may be listed in multiple records, across seasons
+and/or within seasons.</em></p>
+<p>Additionally, we used a histogram plot to identify a right-skewed
+distribution in ages of contestants.</p>
+</div>
+<div id="figure-1-distribution-of-age" class="section level2">
+<h2>Figure 1: Distribution of Age</h2>
+<p><img src="project_report_files/figure-html/unnamed-chunk-3-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><em>Note: Since contestants can re-appear across seasons at different
+ages, we rely on discrete records from <code>survivor_data_final</code>
+(i.e. contestant occurrences) as the unit of analysis for this plot in
+order to ensure comprehensiveness of age data.</em></p>
+<p>We also included tables showing the mean days survived based on these
+demographic measures of interest.</p>
+</div>
+<div id="table-2-days-survived-by-covariates" class="section level2">
+<h2>Table 2: Days Survived by Covariates</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Personality Type
+</th>
+<th style="text-align:right;">
+Distinct Persons
+</th>
+<th style="text-align:right;">
+Contestant Occurrences
+</th>
+<th style="text-align:right;">
+Mean Days Survived
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Extrovert
+</td>
+<td style="text-align:right;">
+309
+</td>
+<td style="text-align:right;">
+401
+</td>
+<td style="text-align:right;">
+24.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Introvert
+</td>
+<td style="text-align:right;">
+271
+</td>
+<td style="text-align:right;">
+320
+</td>
+<td style="text-align:right;">
+23.6
+</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+POC Status
+</th>
+<th style="text-align:right;">
+Distinct Persons
+</th>
+<th style="text-align:right;">
+Contestant Occurrences
+</th>
+<th style="text-align:right;">
+Mean Days Survived
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+POC
+</td>
+<td style="text-align:right;">
+164
+</td>
+<td style="text-align:right;">
+199
+</td>
+<td style="text-align:right;">
+22.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+White
+</td>
+<td style="text-align:right;">
+418
+</td>
+<td style="text-align:right;">
+525
+</td>
+<td style="text-align:right;">
+24.3
+</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Gender
+</th>
+<th style="text-align:right;">
+Distinct Persons
+</th>
+<th style="text-align:right;">
+Contestant Occurrences
+</th>
+<th style="text-align:right;">
+Mean Days Survived
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:right;">
+292
+</td>
+<td style="text-align:right;">
+356
+</td>
+<td style="text-align:right;">
+23.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:right;">
+290
+</td>
+<td style="text-align:right;">
+368
+</td>
+<td style="text-align:right;">
+24.5
+</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Region
+</th>
+<th style="text-align:right;">
+Distinct Persons
+</th>
+<th style="text-align:right;">
+Contestant Occurrences
+</th>
+<th style="text-align:right;">
+Mean Days Survived
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Midwest
+</td>
+<td style="text-align:right;">
+84
+</td>
+<td style="text-align:right;">
+99
+</td>
+<td style="text-align:right;">
+24.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Northeast
+</td>
+<td style="text-align:right;">
+122
+</td>
+<td style="text-align:right;">
+153
+</td>
+<td style="text-align:right;">
+25.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South
+</td>
+<td style="text-align:right;">
+178
+</td>
+<td style="text-align:right;">
+207
+</td>
+<td style="text-align:right;">
+22.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+West
+</td>
+<td style="text-align:right;">
+218
+</td>
+<td style="text-align:right;">
+269
+</td>
+<td style="text-align:right;">
+23.8
+</td>
+</tr>
+</tbody>
+</table>
+<p>Next, to visualize the geographic origins of <em>Survivor</em>
+contestants, we created a map to chart the number of contestants coming
+from each state. This map indicates that California was the most popular
+state of origin for contestants.</p>
+</div>
+<div id="figure-2-map-of-geographic-origins" class="section level2">
+<h2>Figure 2: Map of Geographic Origins</h2>
+<p><img src="project_report_files/figure-html/unnamed-chunk-8-1.png" width="90%" style="display: block; margin: auto;" />
+<em>Notes:</em><br />
+<em>i) Seasons 2, 41, 42, and 43 have been removed from the exploratory
+analysis due to inconsistent number of days.</em><br />
+<em>ii) Since contestants can re-appear across seasons with different
+states of residence, we similarly rely on discrete records from
+<code>survivor_data_final</code> (i.e. contestant occurrences) as the
+unit of analysis for this plot in order to ensure comprehensiveness of
+location data.</em></p>
+<p>Additionally, we used a line plot to visualize the change in
+diversity (looking at both POC status and gender) to view how the
+proportion of POC and women has changed over the show’s many
+seasons.</p>
+</div>
+<div id="figure-3-change-in-proportion-of-poc-over-time"
+class="section level2">
+<h2>Figure 3: Change in Proportion of POC Over Time</h2>
+<p><img src="project_report_files/figure-html/unnamed-chunk-9-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><em>Note: Distinct person counts by POC status.</em></p>
+<p>According to the trends of the proportion of POC, the initial seasons
+had a very low proportion of POC contestants and the overall data shows
+an increasing trend in the proportion of POC. It was interesting to note
+that some “early” seasons such as seasons 13 and 14 had very high
+proportions of POC (over 0.5).</p>
+</div>
+<div id="figure-4-change-in-proportion-of-women-over-time"
+class="section level2">
+<h2>Figure 4: Change in Proportion of Women Over Time</h2>
+<p><img src="project_report_files/figure-html/unnamed-chunk-10-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><em>Note: Distinct person counts by gender.</em></p>
+<p>The graph for the proportion of women per season shows a relatively
+steady trend around 0.5, indicating a generally even distribution of men
+and women in the data. There are some seasons with a proportion less
+than 0.5, but a majority of seasons had an exact proportion of 0.5.</p>
+<p>In addition to the aforementioned exploratory data analysis, we were
+curious to see which contestants were receiving the most confessionals.
+As a result, we created a Shiny app that allows users to select which
+season they would like to view. Users can then examine the number of
+confessionals each contestant received, as well as the total number of
+confessionals they received over the season, and the mean number of
+confessionals per episode they received while on the show.</p>
+</div>
+</div>
+<div id="survival-analysis" class="section level1">
+<h1>Survival Analysis:</h1>
+<div id="methodology" class="section level2">
+<h2>Methodology:</h2>
+<p>For our statistical analysis, we used survival analysis to understand
+the time to elimination for <em>Survivor</em> contestants. In this
+method, we suppose that there is a true survival time, T, as well as a
+true censoring time, C. The survival time represents the time at which
+the event of interest occurs: in this dataset, the time (in days) at
+which participant is voted out. The censoring time is the time at which
+the participant drop out of the game show or survived until the last day
+of the show.</p>
+<p>We observed the Survival Time T and Censoring Time C. Suppose there
+is a random variable Y</p>
+<p><span class="math display">\[Y = min(T,C)\]</span> In other words, if
+the event occurs before the censoring such that T <span
+class="math inline">\(&lt;\)</span> C, then we observed the true
+survival time T. If censoring occurs before the event such as T <span
+class="math inline">\(&gt;\)</span> C, then we observe the censoring
+time. The status indicator as,</p>
+<p><span class="math display">\[\delta = \begin{cases}
+       1 &amp;  T\leq C \\
+       0 &amp; T &gt; C
+   \end{cases}\]</span></p>
+<p>Thus, <span class="math inline">\(\delta\)</span> = 1 if we observe
+the true survival time, and <span class="math inline">\(\delta\)</span>
+= 0 if we observe the censoring.</p>
+<p>We use the Cox-propositional hazard model to evaluate the effect of
+several factors on survival time in Survivor. It allows us to examine
+how specified factors influence the rate of the event that we are
+interested in at a particular point in time. This rate is the hazard
+rate. Covariates are age, gender, personality type, and region in this
+model. The Cox model is expressed by the hazard function denoted by
+h(t). Briefly, the hazard function can be interpreted as the risk of
+voted out at time t. It can be estimated as follow: <span
+class="math display">\[h(t) = h_0(t)\exp(x_1\beta_1 + x_2\beta_2 +
+x_3\beta_3 + x_4\beta_4 + x_4\beta_5)\]</span> where,  </p>
+<ul>
+<li><span class="math inline">\(t\)</span> represents the survival
+time</li>
+<li><span class="math inline">\(h(t)\)</span> is the hazard function
+determined by a set of participants’ covariates <span
+class="math inline">\((x_1, x_2, x_3, x_4, x_5)\)</span>: <span
+class="math inline">\(x_1\)</span> is gender, <span
+class="math inline">\(x_2\)</span> is POC, <span
+class="math inline">\(x_3\)</span> is age during the show, <span
+class="math inline">\(x_4\)</span> is personality type, and <span
+class="math inline">\(x_5\)</span> is region</li>
+<li>the coefficients <span class="math inline">\((\beta1, \beta2,
+\beta3, \beta4, \beta5)\)</span> measures the impact of covariates</li>
+<li><span class="math inline">\(h_0(t)\geq 0\)</span> is the baseline
+hazard function. It is the hazard function for an individual if all
+<span class="math inline">\((x_1, x_2, x_3, x_4, x_5)\)</span> are equal
+to zero.</li>
+</ul>
+</div>
+<div id="cox-proportional-hazards-model" class="section level2">
+<h2>Cox Proportional-Hazards Model</h2>
+<p>To investigate the number of days survived on <em>Survivor</em>, we
+built a Cox Proportional-Hazards Model adjusting for the variables of
+age, gender, personality type (introvert vs extrovert) and POC (White vs
+POC). The Cox Proportional-Hazards model was chosen since it allows us
+to examine multiple factors that could be influencing the rate at which
+contestants are eliminated. An assumption of the Cox
+Proportional-Hazards model is that each covariate has a multiplicative
+effect in the hazards function that is constant over time. After fitting
+the Cox model, we tested the assumption and none of the covariates in
+our model are in violation.</p>
+</div>
+</div>
+<div id="results" class="section level1">
+<h1>Results</h1>
+<div id="kaplan-meier-curves" class="section level2">
+<h2>Kaplan-Meier Curves</h2>
+<p>To investigate each of the covariates individually, we created
+Kaplan-Meier curves to look at survival time with respect to:</p>
+<p><strong>Figure 5: Personality Type</strong> (Introvert vs Extrovert)
+<img src="project_report_files/figure-html/unnamed-chunk-11-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><strong>Figure 6: POC</strong> (White vs Non-White)
+<img src="project_report_files/figure-html/unnamed-chunk-12-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><strong>Figure 7: Gender</strong> (Female vs Male)
+<img src="project_report_files/figure-html/unnamed-chunk-13-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><strong>Figure 8: Region</strong>
+<img src="project_report_files/figure-html/unnamed-chunk-14-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><strong>Figure 9: Northeast vs Non-Northeast Region</strong>
+<img src="project_report_files/figure-html/unnamed-chunk-15-1.png" width="90%" style="display: block; margin: auto;" />
+<em>Notes: Included only Northeast vs Non-Northeast plot due to
+non-significance of other pairwise survival comparisons</em></p>
+<p>The results of our Cox Proportional-Hazards model are displayed
+below.</p>
+<p><strong>Table 3: Modeling Survival Time by Age, Gender, POC,
+Personality Type, Region</strong></p>
+<table>
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Risk Factor</th>
+<th align="center">Parameter Estimate (Standard Error)</th>
+<th align="center">Hazard Ratio (HR) (95% CI)</th>
+<th align="center">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">Age during show (years)</td>
+<td align="center">-0.00 (0.00)</td>
+<td align="center">1.00 (0.99, 1.01)</td>
+<td align="center">0.9538</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>Gender</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="center">Female</td>
+<td align="center">Ref</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="center">Male</td>
+<td align="center">-0.05 (0.08)</td>
+<td align="center">0.95 (0.81, 1.11)</td>
+<td align="center">0.5003</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>POC (person of color)</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="center">POC</td>
+<td align="center">Ref</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="center">White</td>
+<td align="center">-0.11 (0.09)</td>
+<td align="center">0.89 (0.75, 1.07)</td>
+<td align="center">0.2104</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>Personality Type</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="center">Extrovert</td>
+<td align="center">Ref</td>
+<td align="center">Ref</td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="center">Introvert</td>
+<td align="center">0.06 (0.08)</td>
+<td align="center">1.07 (0.91, 1.25)</td>
+<td align="center">0.4242</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>Region</strong></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="center">Midwest</td>
+<td align="center">Ref</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="center">Northeast</td>
+<td align="center">-0.00 (0.15)</td>
+<td align="center">1.00 (0.75, 1.33)</td>
+<td align="center">0.9880</td>
+</tr>
+<tr class="even">
+<td align="center">South</td>
+<td align="center">0.26 (0.14)</td>
+<td align="center">1.30 (1.00, 1.70)</td>
+<td align="center">0.0528</td>
+</tr>
+<tr class="odd">
+<td align="center">West</td>
+<td align="center">0.17 (0.13)</td>
+<td align="center">1.18 (0.91, 1.53)</td>
+<td align="center">0.1989</td>
+</tr>
+</tbody>
+</table>
+<p><em>Notes: N = 721, number of events = 626</em></p>
+<p>As age increases in years, there is no difference in survival since
+the hazard ratio is 1. We are 95% confident that the HR falls between
+0.99 to 1.01. However, the HR is not statistically significant.<br />
+- For gender, the HR value of 0.96 suggests that the survival time for
+male contestants is longer compared to female contestants (the reference
+category). We are 95% confident that the HR falls between 0.82 and 1.12.
+However, the HR is not statistically significant.<br />
+- For POC, the HR value of 0.89 would suggest that the survival time for
+White contestants is longer compared to POC contestants (the reference
+category). We are 95% confident that the HR falls between 0.75 and 1.06.
+However, the HR is not statistically significant.<br />
+- For personality type, the HR value of 1.07 would suggest that the
+survival time for introvert contestants is shorter compared to extrovert
+contestants (the reference category). We are 95% confident that the HR
+falls between 0.91 - 1.25. However, the HR is not statistically
+significant.<br />
+- For region, Midwest is the reference category. However, all of these
+hazard ratios are not statistically significant, p-value &gt; 0.05.</p>
+<pre><code>* The HR value of 0.99 for Northeast suggests that the survival time for contestants from the NE is nearly equal to contestants from the Midwest.  
+* The HR value of 1.29 for the South suggests that the survival time for contestants from the South is shorter compared to contestants from the Midwest.  
+* The HR value of 1.18 for the West suggests that the survival time for contestants from the West is shorter compared to contestants from the Midwest. </code></pre>
+</div>
+<div id="discussion" class="section level2">
+<h2>Discussion:</h2>
+<p>From conducting survival analyses, we did not observe any
+statistically significant covariates in the Cox-Proportional-Hazards
+model. This stands in contrast with our initial hypotheses that race,
+gender, and personality type would impact days survived. The hazard
+ratio values for gender (males surviving longer than female
+contestants), POC (White contestants surviving longer than POC),
+personality type (extrovert surviving longer than introverts) follow our
+general expectations. We also included region as a covariate in our
+final model without expecting that it would impact survival time. The
+indicator for South was nearly statistically significant (at alpha =
+0.05), which could warrant further investigation. However, since none of
+the hazard ratios are statistically significant based on the current
+data, we cannot make any conclusions. Upon conducting analysis on the
+Kaplan-Meier curves to investigate each covariate individually, we
+discovered a marginally statistically significant (at alpha = 0.05)
+curve comparing contestants from the Northeast to those not from the
+Northeast. This indicates that it can be estimated that contestants from
+the Northeast tend to have overall better survival trajectories on the
+show than contestants not from the Northeast.</p>
+<p>It is integral to note that these results do not necessarily reflect
+societal biases and difficulties individuals face on the show, as there
+are several limitations to the data. For example, individuals were only
+categorized as “POC” if there were known references to their racial
+backgrounds and categorized as “White” otherwise. This could potentially
+cause a bias towards the null as some individuals who are actually POC
+might have erroneously been categorized. Additionally, each season was
+relatively limited in the number of contestants with many seasons having
+around 20 contestants. In order to conduct the analysis, we removed some
+of the seasons from the show, which means that this analysis does not
+necessarily represent the show’s full cast. Finally, there are several
+“behind the scenes” factors that could affect how long contestants stay
+on the show, such as producer influence, that potentially influence the
+narratives on the show. Nevertheless, the show has taken several
+necessary steps to promote diversity on the show, such as including a
+higher proportion of POC in recent seasons compared to the original
+seasons as visualized in the exploratory data analysis. As of 2020, CBS
+(the show’s network) announced that reality TV shows must have 50%
+non-White casts and increased writing room diversity.<a href="#fn7"
+class="footnote-ref" id="fnref7"><sup>7</sup></a> Several years in the
+future, it would be interesting to expand this project to analyze
+survival times of POC before and after this change was implemented to
+see if survival times have improved. Another potential future analysis
+could involve determining if the number of confessionals (and length of
+screen time on the show) varies by race, gender, and age.</p>
+</div>
+</div>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://www.cbs.com/shows/survivor/about/"
+class="uri">https://www.cbs.com/shows/survivor/about/</a><a
+href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p><a
+href="https://sphweb.bumc.bu.edu/otlt/mph-modules/bs/bs704_survival/BS704_Survival_print.html"
+class="uri">https://sphweb.bumc.bu.edu/otlt/mph-modules/bs/bs704_survival/BS704_Survival_print.html</a><a
+href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p><a
+href="https://www.katiejolly.io/pdf/survival_analysis_paper.pdf"
+class="uri">https://www.katiejolly.io/pdf/survival_analysis_paper.pdf</a><a
+href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p> <a href="https://github.com/doehm/survivoR"
+class="uri">https://github.com/doehm/survivoR</a><a href="#fnref4"
+class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p><a
+href="https://cran.r-project.org/web//packages/survivoR/survivoR.pdf"
+class="uri">https://cran.r-project.org/web//packages/survivoR/survivoR.pdf</a><a
+href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p><a
+href="https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf"
+class="uri">https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf</a><a
+href="#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p><a
+href="https://www.cnbc.com/2020/11/09/cbs-reality-shows-must-now-have-50percent-non-white-casts-network-says.html"
+class="uri">https://www.cnbc.com/2020/11/09/cbs-reality-shows-must-now-have-50percent-non-white-casts-network-says.html</a><a
+href="#fnref7" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
