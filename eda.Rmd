@@ -88,13 +88,13 @@ survivor_data_final %>%
 
 
 
+## POC and Gender Representation Across Seasons
+
 Next, we run line plots to visualize changes in the relative proportions of distinct individual contestants by POC status and by gender over the course of successive Survivor seasons.
 
 The initial seasons included limited POC representation, with a noticeable spike observed in seasons in 13 and 14. Subsequent seasons have exhibited an increase in overall levels of POC participation, relative to the first twelve seasons of the show.
 
 The proportion of women contestants appearing on the show has remained broadly consistent, hovering either at, or in some cases slightly below, 50 percent across time; season 28 is an exception, with fewer than 40 percent comprised of women.
-
-## POC and Gender Representation Across Seasons
 
 ```{r, warning = FALSE, message = FALSE}
 fill_color = brewer.pal(9, "Reds")[4]
@@ -140,12 +140,9 @@ ggplot(data = survivor_gender_over_time, aes(x = season, y = freq, group = 1)) +
 
 
 
+## Concentration of Contestants by Age and Geography
 
 Finally, we run a histogram to display the distribution of ages for contestant occurrences, as well as a map showing the geographic concentration of contestant occurrences by state. The distribution of ages is right-skewed, with contestants in their early twenties through early thirties heavily represented on the show. The most popular state of origin for contestants is California, whereas Alaska and West Virginia, among other states, are not represented among contestants. 
-
-
-
-## Concentration of Contestants by Age and Geography
 
 ```{r, warning = FALSE, message = FALSE}
 fill_color = brewer.pal(9,"PuBuGn")[5]
