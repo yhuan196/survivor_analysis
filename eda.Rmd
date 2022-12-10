@@ -143,11 +143,13 @@ write.csv(survivor_data_final_including_2_41_42_43, file = "./data/survivor_data
 survivor_data_final = survivor_data_final %>%
   filter(!(version_season %in% c("US02", "US41", "US42", "US43")))
 
-## calculating percent NAs for all variables
-survivor_data_final %>% summarise_all(list(name = ~sum(is.na(.))/length(.)))
-
 ## Saving final dataset as csv file
 write.csv(survivor_data_final, file = "./data/survivor_data_final.csv")
+```
+
+```{r, eval = FALSE}
+## calculating percent NAs for all variables
+survivor_data_final %>% summarise_all(list(name = ~sum(is.na(.))/length(.)))
 ```
 
 ```{r}
