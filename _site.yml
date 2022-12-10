@@ -4,7 +4,7 @@ navbar:
   title: "Home"
   right:
     - text: "Overview"
-      href: proposal.html
+      href: overview.html
     - text: "Exploratory Data Analysis"
       href: eda.html
     - text: "Statistical Analysis"
