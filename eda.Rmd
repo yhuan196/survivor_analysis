@@ -29,10 +29,11 @@ survivor_data_final = read.csv("data/survivor_data_final.csv")
 
 ```{r}
 survivor_data_final %>% 
-  select(gender, poc, personality_type_binary, age_during_show, days_survived) %>% 
+  select(gender, poc, personality_type_binary, age_during_show, days_survived, region) %>% 
   tbl_summary(type = list(gender ~ "categorical", 
                           poc ~ "categorical", 
                           personality_type_binary ~ "categorical", 
+                          region ~ "categorical",
                           age_during_show ~ "continuous", 
                           days_survived ~ "continuous"), 
               statistic = list(all_continuous() ~ "{mean} ({sd})"), 
@@ -40,6 +41,7 @@ survivor_data_final %>%
               label = list(c(gender) ~ "Gender",
                            c(poc) ~ "Race Identifier",
                            c(personality_type_binary) ~ "Personality Type",
+                           c(region) ~ "Region",
                            c(age_during_show) ~ "Age During Show (Years)",
                            c(days_survived) ~ "Survival Time on Show (Days)")) %>% 
   bold_labels()
