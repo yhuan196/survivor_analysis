@@ -62,7 +62,7 @@ In order to gather sufficient data, we plan to combine several data sets (includ
 - `poc` : POC indicator, if known. Else, marked as White. 
 - `gender`: 2 levels: Female, Male. 
 - `personality_type_binary` : Extracted from the Myer-Briggs personality type of the castaway. 2 levels: Extrovert, Introvert.
-- `days_survived`: Number of days survived in the show until elimination
+- `days_survived`: Number of days survived in the show until elimination.
 - `region`: region in the U.S. where the contestant is from. We created this variable based on the `state` variable available in the dataset. 4 levels: West, Midwest, Northeast, South. Indicator variables for each of the 4 regions have also been created for analyses. 
 
 The data-warangling process as follows:
