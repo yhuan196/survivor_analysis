@@ -18,6 +18,7 @@ library(survminer)
 library(gtsummary)
 library(riskRegression)
 library(tab)
+library(kableExtra)
 ```
 
 ## Methodology
@@ -95,17 +96,17 @@ colnames(survivor_data_final)[25] <- "status"
 colnames(survivor_data_final)[26] <- "time"
 
 surv_model_cox1 <- coxph(data = survivor_data_final,
-  Surv(time, status) ~ gender + poc + age_during_show + personality_type_binary + region)
+  Surv(time, status) ~ age_during_show + gender + poc + personality_type_binary + region)
 # summary(surv_model_cox1)
-#Clean table for Cox PH
-tabcoxph(surv_model_cox1, 
-         var.labels = list(age_during_show = "Age", gender = "Gender", poc = "POC",  personality_type_binary = "Personality Type",  region = "Region"), 
-         decimals = 4)
+# Clean table for Cox PH
+tabcoxph(surv_model_cox1,
+         var.labels = list(age_during_show = "Age", gender = "Gender", poc = "POC",  personality_type_binary = "Personality Type",  region = "Region"),
+         decimals = 2)
 ```
 
 **HR interpretations:**\
 As age increases in years, there is no difference in survival since the hazard ratio is 1. We are 95% confident that the HR falls between 0.99 to 1.01. However, the HR is not statistically significant.  \
-- For gender, the HR value of 0.96 suggests that the survival time for male contestants is longer compared to female contestants (the reference category). We are 95% confident that the HR falls between 0.82 and 1.12. However, the HR is not statistically significant.  \
+- For gender, the HR value of 0.9 suggests that the survival time for male contestants is longer compared to female contestants (the reference category). We are 95% confident that the HR falls between 0.82 and 1.12. However, the HR is not statistically significant.  \
 - For POC, the HR value of 0.89 would suggest that the survival time for White contestants is longer compared to POC contestants (the reference category). We are 95% confident that the HR falls between 0.75 and 1.06. However, the HR is not statistically significant.  \
 - For personality type, the HR value of 1.07 would suggest that the survival time for introvert contestants is shorter compared to extrovert contestants (the reference category). We are 95% confident that the HR falls between 0.91 - 1.25. However, the HR is not statistically significant.  \
 - For region, Midwest is the reference category. However, all of these hazard ratios are not statistically significant, p-value > 0.05.\
@@ -117,7 +118,7 @@ As age increases in years, there is no difference in survival since the hazard r
 
 ## Estimation and Statistical Inference
 
-We use Kaplan-Meier Curve to estimate the survival function for contestants. Apply `ggsurvplot` function to draw the survival curves and calculate log-rank test p-value. The following plots are the estimated probability of survival for contestants in each group. Based on the log rank test results, most of the log-rank test p-values are not statistically significant at $\alpha=0.05$. While we perform the log-rank test for contestants from Northeast and non-Northeast regions, the p-value = 0.5 which implies there is significant difference between Northeast and non-Northeast
+We use Kaplan-Meier Curve to estimate the survival function for contestants. Apply `ggsurvplot` function to draw the survival curves and calculate log-rank test p-value. The following plots are the estimated probability of survival for contestants in each group. Based on the log rank test results, most of the log-rank test p-values are not statistically significant at $\alpha=0.05$. While we perform the log-rank test for contestants from Northeast and non-Northeast regions, the p-value = 0.5 which implies there is significant difference between Northeast and non-Northeast.
 
 ### Kaplan-Meier plotter-personality
 ```{r}

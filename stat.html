@@ -491,12 +491,12 @@ colnames(survivor_data_final)[25] &lt;- &quot;status&quot;
 colnames(survivor_data_final)[26] &lt;- &quot;time&quot;
 
 surv_model_cox1 &lt;- coxph(data = survivor_data_final,
-  Surv(time, status) ~ gender + poc + age_during_show + personality_type_binary + region)
+  Surv(time, status) ~ age_during_show + gender + poc + personality_type_binary + region)
 # summary(surv_model_cox1)
-#Clean table for Cox PH
-tabcoxph(surv_model_cox1, 
-         var.labels = list(age_during_show = &quot;Age&quot;, gender = &quot;Gender&quot;, poc = &quot;POC&quot;,  personality_type_binary = &quot;Personality Type&quot;,  region = &quot;Region&quot;), 
-         decimals = 4)</code></pre>
+# Clean table for Cox PH
+tabcoxph(surv_model_cox1,
+         var.labels = list(age_during_show = &quot;Age&quot;, gender = &quot;Gender&quot;, poc = &quot;POC&quot;,  personality_type_binary = &quot;Personality Type&quot;,  region = &quot;Region&quot;),
+         decimals = 2)</code></pre>
 <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -515,6 +515,20 @@ P
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:left;">
+-0.00 (0.00)
+</td>
+<td style="text-align:left;">
+1.00 (0.99, 1.01)
+</td>
+<td style="text-align:left;">
+0.95
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Gender
@@ -545,10 +559,10 @@ Gender
      Male
 </td>
 <td style="text-align:left;">
--0.0545 (0.0809)
+-0.05 (0.08)
 </td>
 <td style="text-align:left;">
-0.9469 (0.8081, 1.1096)
+0.95 (0.81, 1.11)
 </td>
 <td style="text-align:left;">
 0.50
@@ -584,27 +598,13 @@ POC
      White
 </td>
 <td style="text-align:left;">
--0.1124 (0.0898)
+-0.11 (0.09)
 </td>
 <td style="text-align:left;">
-0.8937 (0.7495, 1.0656)
+0.89 (0.75, 1.07)
 </td>
 <td style="text-align:left;">
 0.21
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Age
-</td>
-<td style="text-align:left;">
--0.0002 (0.0040)
-</td>
-<td style="text-align:left;">
-0.9998 (0.9920, 1.0076)
-</td>
-<td style="text-align:left;">
-0.95
 </td>
 </tr>
 <tr>
@@ -637,10 +637,10 @@ Personality Type
      Introvert
 </td>
 <td style="text-align:left;">
-0.0652 (0.0815)
+0.07 (0.08)
 </td>
 <td style="text-align:left;">
-1.0673 (0.9097, 1.2523)
+1.07 (0.91, 1.25)
 </td>
 <td style="text-align:left;">
 0.42
@@ -676,10 +676,10 @@ Region
      Northeast
 </td>
 <td style="text-align:left;">
--0.0022 (0.1454)
+-0.00 (0.15)
 </td>
 <td style="text-align:left;">
-0.9978 (0.7504, 1.3268)
+1.00 (0.75, 1.33)
 </td>
 <td style="text-align:left;">
 0.99
@@ -690,10 +690,10 @@ Region
      South
 </td>
 <td style="text-align:left;">
-0.2646 (0.1366)
+0.26 (0.14)
 </td>
 <td style="text-align:left;">
-1.3029 (0.9968, 1.7029)
+1.30 (1.00, 1.70)
 </td>
 <td style="text-align:left;">
 0.05
@@ -704,10 +704,10 @@ Region
      West
 </td>
 <td style="text-align:left;">
-0.1695 (0.1319)
+0.17 (0.13)
 </td>
 <td style="text-align:left;">
-1.1847 (0.9148, 1.5343)
+1.18 (0.91, 1.53)
 </td>
 <td style="text-align:left;">
 0.20
@@ -719,7 +719,7 @@ Region
 As age increases in years, there is no difference in survival since the
 hazard ratio is 1. We are 95% confident that the HR falls between 0.99
 to 1.01. However, the HR is not statistically significant.<br />
-- For gender, the HR value of 0.96 suggests that the survival time for
+- For gender, the HR value of 0.9 suggests that the survival time for
 male contestants is longer compared to female contestants (the reference
 category). We are 95% confident that the HR falls between 0.82 and 1.12.
 However, the HR is not statistically significant.<br />
@@ -761,7 +761,7 @@ statistically significant at <span
 class="math inline">\(\alpha=0.05\)</span>. While we perform the
 log-rank test for contestants from Northeast and non-Northeast regions,
 the p-value = 0.5 which implies there is significant difference between
-Northeast and non-Northeast</p>
+Northeast and non-Northeast.</p>
 <div id="kaplan-meier-plotter-personality" class="section level3">
 <h3>Kaplan-Meier plotter-personality</h3>
 <pre class="r"><code>surv_model_per &lt;- survfit(Surv(time, status)~ survivor_data_final$personality_type_binary)
