@@ -387,6 +387,37 @@ Demographics on Game Show Contestant Survival</h1>
 </div>
 
 
+<pre class="r"><code>## reading in data
+survivor_data_final = 
+  read.csv(&quot;data/survivor_data_final.csv&quot;)
+status &lt;- c()
+time &lt;- c()
+for (i in 1:nrow(survivor_data_final))
+  {
+  if (survivor_data_final[i,17] == &quot;Quit&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  }
+  else if (survivor_data_final[i,17] == &quot;Sole Survivor&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  } 
+  else if (survivor_data_final[i,17] == &quot;Runner-up&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  } else if (survivor_data_final[i,17] == &quot;Co-runner-up&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  }
+  else {
+    status[i] &lt;- 1
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  }
+}
+survivor_data_final[,25] &lt;- status
+survivor_data_final[,26] &lt;- time
+colnames(survivor_data_final)[25] &lt;- &quot;status&quot;
+colnames(survivor_data_final)[26] &lt;- &quot;time&quot;</code></pre>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <div id="motivation" class="section level3">
@@ -517,6 +548,27 @@ distinct individuals can recur across multiple seasons or episodes
 within a season.</p>
 <div id="table-1-summary-statistics" class="section level2">
 <h2>Table 1: Summary Statistics</h2>
+<pre class="r"><code>survivor_data_final %&gt;% 
+  select(gender, poc, personality_type_binary, age_during_show, days_survived, region) %&gt;% 
+  tbl_summary(type = list(gender ~ &quot;categorical&quot;, 
+                          poc ~ &quot;categorical&quot;, 
+                          personality_type_binary ~ &quot;categorical&quot;, 
+                          region ~ &quot;categorical&quot;,
+                          age_during_show ~ &quot;continuous&quot;, 
+                          days_survived ~ &quot;continuous&quot;), 
+              statistic = list(all_continuous() ~ &quot;{mean} ({sd})&quot;), 
+              digits = all_continuous() ~ 1,
+              label = list(c(gender) ~ &quot;Gender&quot;,
+                           c(poc) ~ &quot;Race Identifier&quot;,
+                           c(personality_type_binary) ~ &quot;Personality Type&quot;,
+                           c(region) ~ &quot;Region&quot;,
+                           c(age_during_show) ~ &quot;Age During Show (Years)&quot;,
+                           c(days_survived) ~ &quot;Survival Time on Show (Days)&quot;)) %&gt;% 
+  bold_labels()  %&gt;%
+  as_gt() %&gt;%             # convert to gt table
+  gt::gtsave(             # save table as image
+    filename = &quot;table_1_new.png&quot;
+  )</code></pre>
 <center>
 <p><img src="table_1_new.png" width="400" /></p>
 </center>
@@ -529,6 +581,12 @@ distribution in ages of contestants.</p>
 </div>
 <div id="figure-1-distribution-of-age" class="section level2">
 <h2>Figure 1: Distribution of Age</h2>
+<pre class="r"><code>fill_color = brewer.pal(9,&quot;PuBuGn&quot;)[5]
+ggplot(survivor_data_final, aes(x = age_during_show)) + 
+  geom_histogram(aes(y = after_stat(count/sum(count))), bins = 15, fill = fill_color, col = &quot;white&quot;) +
+  scale_y_continuous(labels = scales::percent) + 
+  ggtitle(&quot;Distribution of Ages Across Contestant Occurrences&quot;) +
+  xlab(&quot;Age (During Show)&quot;) + ylab(&quot;Count&quot;)</code></pre>
 <p><img src="project_report_files/figure-html/unnamed-chunk-3-1.png" width="90%" style="display: block; margin: auto;" /></p>
 <p><em>Note: Since contestants can re-appear across seasons at different
 ages, we rely on discrete records from <code>survivor_data_final</code>
@@ -539,6 +597,14 @@ demographic measures of interest.</p>
 </div>
 <div id="table-2-days-survived-by-covariates" class="section level2">
 <h2>Table 2: Days Survived by Covariates</h2>
+<pre class="r"><code>## Personality type
+survivor_data_final %&gt;% 
+  group_by(personality_type_binary) %&gt;% 
+  summarize(n_personality_dist = n_distinct(full_name),
+            n_personality_occ = n(),
+            mean_days_survived = mean(days_survived)) %&gt;% 
+    na.omit()  %&gt;%
+  knitr::kable(digits = 1, col.names = c(&quot;Personality Type&quot;, &quot;Distinct Persons&quot;, &quot;Contestant Occurrences&quot;, &quot;Mean Days Survived&quot;))</code></pre>
 <table>
 <thead>
 <tr>
@@ -587,6 +653,14 @@ Introvert
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>## POC Status
+survivor_data_final %&gt;% 
+  group_by(poc) %&gt;% 
+  summarize(n_poc_dist = n_distinct(full_name),
+            n_poc_occ = n(),
+            mean_days_survived = mean(days_survived, na.rm = TRUE)) %&gt;% 
+    na.omit()  %&gt;%
+  knitr::kable(digits = 1, col.names = c(&quot;POC Status&quot;, &quot;Distinct Persons&quot;, &quot;Contestant Occurrences&quot;, &quot;Mean Days Survived&quot;))</code></pre>
 <table>
 <thead>
 <tr>
@@ -635,6 +709,14 @@ White
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>## Gender
+survivor_data_final %&gt;% 
+  group_by(gender) %&gt;% 
+  summarize(n_gender_dist = n_distinct(full_name),
+            n_gender_occ = n(),
+            mean_days_survived = mean(days_survived, na.rm = TRUE)) %&gt;%
+    na.omit()  %&gt;%
+  knitr::kable(digits = 1, col.names = c(&quot;Gender&quot;, &quot;Distinct Persons&quot;, &quot;Contestant Occurrences&quot;, &quot;Mean Days Survived&quot;))</code></pre>
 <table>
 <thead>
 <tr>
@@ -683,6 +765,14 @@ Male
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>## Region
+survivor_data_final %&gt;% 
+  group_by(region) %&gt;% 
+  summarize(n_region_dist = n_distinct(full_name),
+            n_region_occ = n(),
+            mean_days_survived = mean(days_survived, na.rm = TRUE)) %&gt;%
+    na.omit()  %&gt;%
+  knitr::kable(digits = 1, col.names = c(&quot;Region&quot;, &quot;Distinct Persons&quot;, &quot;Contestant Occurrences&quot;, &quot;Mean Days Survived&quot;))</code></pre>
 <table>
 <thead>
 <tr>
@@ -766,6 +856,16 @@ state of origin for contestants.</p>
 </div>
 <div id="figure-2-map-of-geographic-origins" class="section level2">
 <h2>Figure 2: Map of Geographic Origins</h2>
+<pre class="r"><code>survivor_state = survivor_data_final %&gt;%
+  group_by(state) %&gt;%
+  summarize(n = n())
+plot_usmap(
+  data = survivor_state, values = &quot;n&quot;, lines = &quot;blue&quot;
+) + 
+  scale_fill_continuous(type = &quot;viridis&quot;, name = &quot;Contestant Count&quot;, label = scales::comma
+  ) + 
+  labs(title = &quot;US States&quot;, subtitle = &quot;Geographic Distribution of Contestants&quot;) +
+  theme(legend.position = &quot;right&quot;)</code></pre>
 <p><img src="project_report_files/figure-html/unnamed-chunk-8-1.png" width="90%" style="display: block; margin: auto;" />
 <em>Notes:</em><br />
 <em>i) Seasons 2, 41, 42, and 43 have been removed from the exploratory
@@ -783,6 +883,21 @@ seasons.</p>
 <div id="figure-3-change-in-proportion-of-poc-over-time"
 class="section level2">
 <h2>Figure 3: Change in Proportion of POC Over Time</h2>
+<pre class="r"><code>fill_color = brewer.pal(9,&quot;Reds&quot;)[4]
+survivor_poc_over_time = survivor_data_final %&gt;% 
+  group_by(version_season, poc) %&gt;%
+  summarize(count = n_distinct(full_name)) %&gt;%
+  mutate(freq = count / sum(count)) %&gt;%
+  filter(poc == &quot;POC&quot;) %&gt;%
+  separate(col = version_season, into = c(&#39;NA&#39;, &#39;season&#39;), sep = 2) %&gt;%
+  dplyr::select(-&quot;NA&quot;) %&gt;%
+  mutate(season = as.numeric(season))
+ggplot(data = survivor_poc_over_time, aes(x = season, y = freq, group = 1)) +
+  geom_line(color = fill_color) +
+  geom_point(color = fill_color) +
+  geom_smooth(se = FALSE, color = &quot;seashell&quot;) + 
+  ggtitle(&quot;Change in Proportion of POC Over Time &quot;) +
+  xlab(&quot;Season&quot;) + ylab(&quot;Proportion of POC&quot;)</code></pre>
 <p><img src="project_report_files/figure-html/unnamed-chunk-9-1.png" width="90%" style="display: block; margin: auto;" /></p>
 <p><em>Note: Distinct person counts by POC status.</em></p>
 <p>According to the trends of the proportion of POC, the initial seasons
@@ -794,6 +909,21 @@ proportions of POC (over 0.5).</p>
 <div id="figure-4-change-in-proportion-of-women-over-time"
 class="section level2">
 <h2>Figure 4: Change in Proportion of Women Over Time</h2>
+<pre class="r"><code>fill_color = brewer.pal(9,&quot;Purples&quot;)[5]
+survivor_gender_over_time = survivor_data_final %&gt;% 
+  group_by(version_season, gender) %&gt;%
+  summarize(count = n_distinct(full_name)) %&gt;%
+  mutate(freq = count / sum(count)) %&gt;%
+  filter(gender == &quot;Female&quot;) %&gt;%
+  separate(col = version_season, into = c(&#39;NA&#39;, &#39;season&#39;), sep = 2) %&gt;%
+  dplyr::select(-&quot;NA&quot;) %&gt;%
+  mutate(season = as.numeric(season))
+ggplot(data = survivor_gender_over_time, aes(x = season, y = freq, group = 1)) +
+  geom_line(color = fill_color) +
+  geom_point(color = fill_color) +
+  geom_smooth(se = FALSE, color = &quot;purple&quot;) + 
+  ggtitle(&quot;Change in Proportion of Women Over Time&quot;) +
+  xlab(&quot;Season&quot;) + ylab(&quot;Proportion of Women&quot;)</code></pre>
 <p><img src="project_report_files/figure-html/unnamed-chunk-10-1.png" width="90%" style="display: block; margin: auto;" /></p>
 <p><em>Note: Distinct person counts by gender.</em></p>
 <p>The graph for the proportion of women per season shows a relatively
@@ -885,16 +1015,91 @@ our model are in violation.</p>
 <h2>Kaplan-Meier Curves</h2>
 <p>To investigate each of the covariates individually, we created
 Kaplan-Meier curves to look at survival time with respect to:</p>
-<p><strong>Figure 5: Personality Type</strong> (Introvert vs Extrovert)
-<img src="project_report_files/figure-html/unnamed-chunk-11-1.png" width="90%" style="display: block; margin: auto;" /></p>
-<p><strong>Figure 6: POC</strong> (White vs Non-White)
-<img src="project_report_files/figure-html/unnamed-chunk-12-1.png" width="90%" style="display: block; margin: auto;" /></p>
-<p><strong>Figure 7: Gender</strong> (Female vs Male)
-<img src="project_report_files/figure-html/unnamed-chunk-13-1.png" width="90%" style="display: block; margin: auto;" /></p>
-<p><strong>Figure 8: Region</strong>
-<img src="project_report_files/figure-html/unnamed-chunk-14-1.png" width="90%" style="display: block; margin: auto;" /></p>
-<p><strong>Figure 9: Northeast vs Non-Northeast Region</strong>
-<img src="project_report_files/figure-html/unnamed-chunk-15-1.png" width="90%" style="display: block; margin: auto;" />
+<p><strong>Figure 5: Personality Type</strong> (Introvert vs
+Extrovert)</p>
+<pre class="r"><code>surv_model_per &lt;- survfit(Surv(time, status)~ survivor_data_final$personality_type_binary)
+ggsurvplot(
+  surv_model_per,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  palette =
+    c(&quot;#E7B800&quot;, &quot;#2E9FDF&quot;),# custom color palettes
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Extrovert&quot;, &quot;Introvert&quot;),    # Change legend labels
+  risk.table.height = 0.35, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-11-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><strong>Figure 6: POC</strong> (White vs Non-White)</p>
+<pre class="r"><code>surv_model_poc &lt;- survfit(Surv(time, status)~ survivor_data_final$poc)
+ggsurvplot(
+  surv_model_poc,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;POC&quot;, &quot;White&quot;),    # Change legend labels
+  risk.table.height = 0.35, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-12-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><strong>Figure 7: Gender</strong> (Female vs Male)</p>
+<pre class="r"><code>surv_model_sex &lt;- survfit(Surv(time, status)~ survivor_data_final$gender)
+ggsurvplot(
+  surv_model_sex,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;female&quot;, &quot;male&quot;),    # Change legend labels
+  risk.table.height = 0.35, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-13-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><strong>Figure 8: Region</strong></p>
+<pre class="r"><code>surv_model_Region &lt;- survfit(Surv(time, status)~ survivor_data_final$region)
+region_surv = ggsurvplot(
+  surv_model_Region,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Midwest&quot;, &quot;Northeast&quot;, &quot;South&quot;, &quot;West&quot;),    # Change legend labels
+  risk.table.height = 0.45, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)
+
+print(region_surv, surv.plot.height = 3)</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-14-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><strong>Figure 9: Northeast vs Non-Northeast Region</strong></p>
+<pre class="r"><code>surv_model_NE &lt;- survfit(Surv(time, status)~ survivor_data_final$NE)
+ggsurvplot(
+  surv_model_NE,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Non-Northeast&quot;, &quot;Northeast&quot;),    # Change legend labels
+  risk.table.height = 0.35, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-15-1.png" width="90%" style="display: block; margin: auto;" />
 <em>Notes: Included only Northeast vs Non-Northeast plot due to
 non-significance of other pairwise survival comparisons</em></p>
 <p>The results of our Cox Proportional-Hazards model are displayed

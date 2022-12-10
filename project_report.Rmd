@@ -29,7 +29,7 @@ library(usmap)
 library(webshot2)
 ```
 
-```{r, include = FALSE}
+```{r, warning = FALSE, message = FALSE}
 ## reading in data
 survivor_data_final = 
   read.csv("data/survivor_data_final.csv")
@@ -92,7 +92,7 @@ As a supplemental analysis, we also used the `confessionals` data from the same 
  We performed exploratory data analysis to visualize the distributions of our variables of interest, including POC, gender, personality type, age, and geographic location. In order to best depict the true nature of our data, we used a combination of tables and plots, depending on which method we believed to be most effective. In our summary demographic table, we specifically count contestant occurrences, while noting that distinct individuals can recur across multiple seasons or episodes within a season. 
 
 ## Table 1: Summary Statistics
-```{r, echo = FALSE, eval = FALSE}
+```{r, warning = FALSE, message = FALSE}
 survivor_data_final %>% 
   select(gender, poc, personality_type_binary, age_during_show, days_survived, region) %>% 
   tbl_summary(type = list(gender ~ "categorical", 
@@ -126,7 +126,7 @@ survivor_data_final %>%
 Additionally, we used a histogram plot to identify a right-skewed distribution in ages of contestants.
 
 ## Figure 1: Distribution of Age
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, , warning = FALSE, message = FALSE}
 fill_color = brewer.pal(9,"PuBuGn")[5]
 ggplot(survivor_data_final, aes(x = age_during_show)) + 
   geom_histogram(aes(y = after_stat(count/sum(count))), bins = 15, fill = fill_color, col = "white") +
@@ -140,7 +140,7 @@ ggplot(survivor_data_final, aes(x = age_during_show)) +
 We also included tables showing the mean days survived based on these demographic measures of interest. 
 
 ## Table 2: Days Survived by Covariates 
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, warning = FALSE, message = FALSE}
 ## Personality type
 survivor_data_final %>% 
   group_by(personality_type_binary) %>% 
@@ -152,7 +152,7 @@ survivor_data_final %>%
 ```
 
 
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, warning = FALSE, message = FALSE}
 ## POC Status
 survivor_data_final %>% 
   group_by(poc) %>% 
@@ -164,7 +164,7 @@ survivor_data_final %>%
 ```
 
 
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, warning = FALSE, message = FALSE}
 ## Gender
 survivor_data_final %>% 
   group_by(gender) %>% 
@@ -176,7 +176,7 @@ survivor_data_final %>%
 ```
 
 
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, warning = FALSE, message = FALSE}
 ## Region
 survivor_data_final %>% 
   group_by(region) %>% 
@@ -190,7 +190,7 @@ survivor_data_final %>%
 Next, to visualize the geographic origins of *Survivor* contestants, we created a map to chart the number of contestants coming from each state. This map indicates that California was the most popular state of origin for contestants.
 
 ## Figure 2: Map of Geographic Origins
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, warning = FALSE, message = FALSE}
 survivor_state = survivor_data_final %>%
   group_by(state) %>%
   summarize(n = n())
@@ -209,7 +209,7 @@ plot_usmap(
 Additionally, we used a line plot to visualize the change in diversity (looking at both POC status and gender) to view how the proportion of POC and women has changed over the show’s many seasons. 
 
 ## Figure 3: Change in Proportion of POC Over Time
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, warning = FALSE, message = FALSE}
 fill_color = brewer.pal(9,"Reds")[4]
 survivor_poc_over_time = survivor_data_final %>% 
   group_by(version_season, poc) %>%
@@ -232,7 +232,7 @@ ggplot(data = survivor_poc_over_time, aes(x = season, y = freq, group = 1)) +
 According to the trends of the proportion of POC, the initial seasons had a very low proportion of POC contestants and the overall data shows an increasing trend in the proportion of POC. It was interesting to note that some “early” seasons such as seasons 13 and 14 had very high proportions of POC (over 0.5). 
 
 ## Figure 4: Change in Proportion of Women Over Time
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r , warning = FALSE, message = FALSE}
 fill_color = brewer.pal(9,"Purples")[5]
 survivor_gender_over_time = survivor_data_final %>% 
   group_by(version_season, gender) %>%
@@ -293,7 +293,7 @@ where, \
 To investigate each of the covariates individually, we created Kaplan-Meier curves to look at survival time with respect to: 
 
 **Figure 5: Personality Type** (Introvert vs Extrovert) 
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, warning = FALSE, message = FALSE}
 surv_model_per <- survfit(Surv(time, status)~ survivor_data_final$personality_type_binary)
 ggsurvplot(
   surv_model_per,
@@ -314,7 +314,7 @@ ggsurvplot(
 
 
 **Figure 6: POC** (White vs Non-White)
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, warning = FALSE, message = FALSE}
 surv_model_poc <- survfit(Surv(time, status)~ survivor_data_final$poc)
 ggsurvplot(
   surv_model_poc,
@@ -333,7 +333,7 @@ ggsurvplot(
 
 
 **Figure 7: Gender** (Female vs Male)
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, warning = FALSE, message = FALSE}
 surv_model_sex <- survfit(Surv(time, status)~ survivor_data_final$gender)
 ggsurvplot(
   surv_model_sex,
@@ -352,7 +352,7 @@ ggsurvplot(
 
 
 **Figure 8: Region**
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, warning = FALSE, message = FALSE}
 surv_model_Region <- survfit(Surv(time, status)~ survivor_data_final$region)
 region_surv = ggsurvplot(
   surv_model_Region,
@@ -372,7 +372,7 @@ print(region_surv, surv.plot.height = 3)
 ```
 
 **Figure 9: Northeast vs Non-Northeast Region** 
-```{r, warning = FALSE, message = FALSE, echo = FALSE}
+```{r, warning = FALSE, message = FALSE}
 surv_model_NE <- survfit(Surv(time, status)~ survivor_data_final$NE)
 ggsurvplot(
   surv_model_NE,
