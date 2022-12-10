@@ -1015,8 +1015,9 @@ our model are in violation.</p>
 <h2>Kaplan-Meier Curves</h2>
 <p>To investigate each of the covariates individually, we created
 Kaplan-Meier curves to look at survival time with respect to:</p>
-<p><strong>Figure 5: Personality Type</strong> (Introvert vs
-Extrovert)</p>
+<div id="figure-5-personality-type-introvert-vs-extrovert"
+class="section level3">
+<h3>Figure 5: Personality Type (Introvert vs Extrovert)</h3>
 <pre class="r"><code>surv_model_per &lt;- survfit(Surv(time, status)~ survivor_data_final$personality_type_binary)
 ggsurvplot(
   surv_model_per,
@@ -1034,7 +1035,9 @@ ggsurvplot(
   ggtheme = theme_bw()      # Change ggplot2 theme
 )</code></pre>
 <p><img src="project_report_files/figure-html/unnamed-chunk-11-1.png" width="90%" style="display: block; margin: auto;" /></p>
-<p><strong>Figure 6: POC</strong> (White vs Non-White)</p>
+</div>
+<div id="figure-6-poc-white-vs-non-white" class="section level3">
+<h3>Figure 6: POC (White vs Non-White)</h3>
 <pre class="r"><code>surv_model_poc &lt;- survfit(Surv(time, status)~ survivor_data_final$poc)
 ggsurvplot(
   surv_model_poc,
@@ -1050,7 +1053,9 @@ ggsurvplot(
   ggtheme = theme_bw()      # Change ggplot2 theme
 )</code></pre>
 <p><img src="project_report_files/figure-html/unnamed-chunk-12-1.png" width="90%" style="display: block; margin: auto;" /></p>
-<p><strong>Figure 7: Gender</strong> (Female vs Male)</p>
+</div>
+<div id="figure-7-gender-female-vs-male" class="section level3">
+<h3>Figure 7: Gender (Female vs Male)</h3>
 <pre class="r"><code>surv_model_sex &lt;- survfit(Surv(time, status)~ survivor_data_final$gender)
 ggsurvplot(
   surv_model_sex,
@@ -1066,7 +1071,9 @@ ggsurvplot(
   ggtheme = theme_bw()      # Change ggplot2 theme
 )</code></pre>
 <p><img src="project_report_files/figure-html/unnamed-chunk-13-1.png" width="90%" style="display: block; margin: auto;" /></p>
-<p><strong>Figure 8: Region</strong></p>
+</div>
+<div id="figure-8-region" class="section level3">
+<h3>Figure 8: Region</h3>
 <pre class="r"><code>surv_model_Region &lt;- survfit(Surv(time, status)~ survivor_data_final$region)
 region_surv = ggsurvplot(
   surv_model_Region,
@@ -1084,7 +1091,10 @@ region_surv = ggsurvplot(
 
 print(region_surv, surv.plot.height = 3)</code></pre>
 <p><img src="project_report_files/figure-html/unnamed-chunk-14-1.png" width="90%" style="display: block; margin: auto;" /></p>
-<p><strong>Figure 9: Northeast vs Non-Northeast Region</strong></p>
+</div>
+<div id="figure-9-northeast-vs-non-northeast-region"
+class="section level3">
+<h3>Figure 9: Northeast vs Non-Northeast Region</h3>
 <pre class="r"><code>surv_model_NE &lt;- survfit(Surv(time, status)~ survivor_data_final$NE)
 ggsurvplot(
   surv_model_NE,
@@ -1104,8 +1114,12 @@ ggsurvplot(
 non-significance of other pairwise survival comparisons</em></p>
 <p>The results of our Cox Proportional-Hazards model are displayed
 below.</p>
-<p><strong>Table 3: Modeling Survival Time by Age, Gender, POC,
-Personality Type, Region</strong></p>
+</div>
+<div
+id="table-3-modeling-survival-time-by-age-gender-poc-personality-type-region"
+class="section level3">
+<h3>Table 3: Modeling Survival Time by Age, Gender, POC, Personality
+Type, Region</h3>
 <table>
 <colgroup>
 <col width="25%" />
@@ -1215,33 +1229,49 @@ Personality Type, Region</strong></p>
 </tbody>
 </table>
 <p><em>Notes: N = 721, number of events = 626</em></p>
-<p>As age increases in years, there is no difference in survival since
+</div>
+<div id="interpretation" class="section level3">
+<h3>Interpretation</h3>
+<ul>
+<li>As age increases in years, there is no difference in survival since
 the hazard ratio is 1. We are 95% confident that the HR falls between
 0.99 to 1.01. However, the HR is not statistically significant.<br />
-- For gender, the HR value of 0.96 suggests that the survival time for
+</li>
+<li>For gender, the HR value of 0.96 suggests that the survival time for
 male contestants is longer compared to female contestants (the reference
 category). We are 95% confident that the HR falls between 0.82 and 1.12.
 However, the HR is not statistically significant.<br />
-- For POC, the HR value of 0.89 would suggest that the survival time for
-White contestants is longer compared to POC contestants (the reference
-category). We are 95% confident that the HR falls between 0.75 and 1.06.
-However, the HR is not statistically significant.<br />
-- For personality type, the HR value of 1.07 would suggest that the
+</li>
+<li>For POC, the HR value of 0.89 would suggest that the survival time
+for White contestants is longer compared to POC contestants (the
+reference category). We are 95% confident that the HR falls between 0.75
+and 1.06. However, the HR is not statistically significant.<br />
+</li>
+<li>For personality type, the HR value of 1.07 would suggest that the
 survival time for introvert contestants is shorter compared to extrovert
 contestants (the reference category). We are 95% confident that the HR
 falls between 0.91 - 1.25. However, the HR is not statistically
 significant.<br />
-- For region, Midwest is the reference category. However, all of these
-hazard ratios are not statistically significant, p-value &gt; 0.05. *
-The HR value of 0.99 for Northeast suggests that the survival time for
-contestants from the NE is nearly equal to contestants from the
+</li>
+<li>For region, Midwest is the reference category. However, all of these
+hazard ratios are not statistically significant, p-value &gt;
+0.05.<br />
+
+<ul>
+<li>The HR value of 0.99 for Northeast suggests that the survival time
+for contestants from the NE is nearly equal to contestants from the
 Midwest.<br />
-* The HR value of 1.29 for the South suggests that the survival time for
-contestants from the South is shorter compared to contestants from the
-Midwest.<br />
-* The HR value of 1.18 for the West suggests that the survival time for
-contestants from the West is shorter compared to contestants from the
-Midwest.</p>
+</li>
+<li>The HR value of 1.29 for the South suggests that the survival time
+for contestants from the South is shorter compared to contestants from
+the Midwest.<br />
+</li>
+<li>The HR value of 1.18 for the West suggests that the survival time
+for contestants from the West is shorter compared to contestants from
+the Midwest.</li>
+</ul></li>
+</ul>
+</div>
 </div>
 <div id="discussion" class="section level2">
 <h2>Discussion:</h2>

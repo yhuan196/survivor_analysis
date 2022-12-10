@@ -292,7 +292,7 @@ where, \
 
 To investigate each of the covariates individually, we created Kaplan-Meier curves to look at survival time with respect to: 
 
-**Figure 5: Personality Type** (Introvert vs Extrovert) 
+### Figure 5: Personality Type (Introvert vs Extrovert) 
 ```{r, warning = FALSE, message = FALSE}
 surv_model_per <- survfit(Surv(time, status)~ survivor_data_final$personality_type_binary)
 ggsurvplot(
@@ -313,7 +313,7 @@ ggsurvplot(
 ```
 
 
-**Figure 6: POC** (White vs Non-White)
+### Figure 6: POC (White vs Non-White)
 ```{r, warning = FALSE, message = FALSE}
 surv_model_poc <- survfit(Surv(time, status)~ survivor_data_final$poc)
 ggsurvplot(
@@ -332,7 +332,7 @@ ggsurvplot(
 ```
 
 
-**Figure 7: Gender** (Female vs Male)
+### Figure 7: Gender (Female vs Male)
 ```{r, warning = FALSE, message = FALSE}
 surv_model_sex <- survfit(Surv(time, status)~ survivor_data_final$gender)
 ggsurvplot(
@@ -350,8 +350,7 @@ ggsurvplot(
 )
 ```
 
-
-**Figure 8: Region**
+### Figure 8: Region
 ```{r, warning = FALSE, message = FALSE}
 surv_model_Region <- survfit(Surv(time, status)~ survivor_data_final$region)
 region_surv = ggsurvplot(
@@ -371,7 +370,7 @@ region_surv = ggsurvplot(
 print(region_surv, surv.plot.height = 3)
 ```
 
-**Figure 9: Northeast vs Non-Northeast Region** 
+### Figure 9: Northeast vs Non-Northeast Region
 ```{r, warning = FALSE, message = FALSE}
 surv_model_NE <- survfit(Surv(time, status)~ survivor_data_final$NE)
 ggsurvplot(
@@ -392,7 +391,7 @@ ggsurvplot(
 
 The results of our Cox Proportional-Hazards model are displayed below. 
 
-**Table 3: Modeling Survival Time by Age, Gender, POC, Personality Type, Region**  
+### Table 3: Modeling Survival Time by Age, Gender, POC, Personality Type, Region
 
 | Risk Factor | Parameter Estimate (Standard Error) | Hazard Ratio (HR) (95% CI) | P-Value |
 |:---:|:---:|:---:|:---:|
@@ -414,11 +413,12 @@ The results of our Cox Proportional-Hazards model are displayed below.
 
 *Notes: N = 721, number of events = 626*
 
-As age increases in years, there is no difference in survival since the hazard ratio is 1. We are 95% confident that the HR falls between 0.99 to 1.01. However, the HR is not statistically significant.  
+### Interpretation
+- As age increases in years, there is no difference in survival since the hazard ratio is 1. We are 95% confident that the HR falls between 0.99 to 1.01. However, the HR is not statistically significant.  
 - For gender, the HR value of 0.96 suggests that the survival time for male contestants is longer compared to female contestants (the reference category). We are 95% confident that the HR falls between 0.82 and 1.12. However, the HR is not statistically significant.  
 - For POC, the HR value of 0.89 would suggest that the survival time for White contestants is longer compared to POC contestants (the reference category). We are 95% confident that the HR falls between 0.75 and 1.06. However, the HR is not statistically significant.  
 - For personality type, the HR value of 1.07 would suggest that the survival time for introvert contestants is shorter compared to extrovert contestants (the reference category). We are 95% confident that the HR falls between 0.91 - 1.25. However, the HR is not statistically significant.  
-- For region, Midwest is the reference category. However, all of these hazard ratios are not statistically significant, p-value > 0.05.
+- For region, Midwest is the reference category. However, all of these hazard ratios are not statistically significant, p-value > 0.05.\
   * The HR value of 0.99 for Northeast suggests that the survival time for contestants from the NE is nearly equal to contestants from the Midwest.  
   * The HR value of 1.29 for the South suggests that the survival time for contestants from the South is shorter compared to contestants from the Midwest.  
   * The HR value of 1.18 for the West suggests that the survival time for contestants from the West is shorter compared to contestants from the Midwest. 
