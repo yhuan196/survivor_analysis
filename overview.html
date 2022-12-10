@@ -423,8 +423,8 @@ id="fnref1"><sup>1</sup></a></p>
 to visualize castaway characteristic distributions</li>
 <li>Survival analysis (Kaplan-Meier curves) studying the effects of
 race, gender, age and personality type on length of stay</li>
-<li>Cox-Proportional Hazards Model investigating the association between
-the survival time of Contestant and race, gender, age and personality
+<li>Cox proportional hazards model investigating the association between
+the survival time of contestant and race, gender, age and personality
 type variables.</li>
 </ul>
 </div>
@@ -513,24 +513,24 @@ occurred in low frequency and was not patterned in nature. The final
 dataset used in the analysis contains unique information for each
 castaway for each season, including the following key variables:</p>
 <ul>
-<li><code>version_season</code>: version and season number</li>
-<li><code>full_name</code>: contestant full name</li>
-<li><code>age_during_show</code> : age, in years</li>
+<li><code>version_season</code>: Version and season number</li>
+<li><code>full_name</code>: Contestant full name</li>
+<li><code>age_during_show</code> : Age, in years</li>
 <li><code>poc</code> : POC indicator, if known. Else, marked as
 White.</li>
 <li><code>gender</code>: 2 levels: Female, Male.</li>
 <li><code>personality_type_binary</code> : Extracted from the
-Myer-Briggs personality type of the castaway. 2 levels: Extrovert,
+Myers-Briggs personality type of the castaway. 2 levels: Extrovert,
 Introvert.</li>
 <li><code>days_survived</code>: Number of days survived in the show
 until elimination.</li>
-<li><code>region</code>: region in the U.S. where the contestant is
+<li><code>region</code>: Region in the U.S. where the contestant is
 from. We created this variable based on the <code>state</code> variable
 available in the dataset. 4 levels: West, Midwest, Northeast, South.
 Indicator variables for each of the 4 regions have also been created for
 analyses.</li>
 </ul>
-<p>The data-warangling process as follows:</p>
+<p>The data-wrangling process as follows:</p>
 <pre class="r"><code>## cleaning Castaway Details dataset: filtering-out non-US seasons, creating personality type variable
 castaway_details_us = castaway_details %&gt;% 
   filter(str_detect(castaway_id, &#39;^US&#39;)) %&gt;%

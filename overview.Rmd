@@ -65,7 +65,7 @@ In order to gather sufficient data, we plan to combine several data sets (includ
 - `days_survived`: Number of days survived in the show until elimination.
 - `region`: Region in the U.S. where the contestant is from. We created this variable based on the `state` variable available in the dataset. 4 levels: West, Midwest, Northeast, South. Indicator variables for each of the 4 regions have also been created for analyses. 
 
-The data-warangling process as follows:
+The data-wrangling process as follows:
 ```{r, warning = FALSE, message = FALSE}
 
 ## cleaning Castaway Details dataset: filtering-out non-US seasons, creating personality type variable
