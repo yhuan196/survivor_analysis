@@ -38,4 +38,234 @@ $$\delta =  \left\{
 
 Thus, $\delta$ = 1 if we observe the true survival time, and $\delta$ = 0 if we observe the censoring.
 
+
+We use the Cox-propositional hazard model to evaluate the effect of several factors on survival time in Survivor Show. It allows us to examine how specified factors influence the rate of the event that we interested at a particular point in time. This rate is the hazard rate. Covariates are gender, poc, age, personality type, and region in this model. 
+The Cox model is expressed by the hazard function denoted by h(t). Briefly, the hazard function can be interpreted as the risk of voted out at time t. It can be estimated as follow:
+$$h(t) = h_0(t)\exp(x_1\beta_1 + x_2\beta_2 + x_3\beta_3 + x_4\beta_4 + x_4\beta_5)$$
+where, \ 
+
+* $t$ represents the survival time 
+* $h(t)$ is the hazard function determined by a set of participants' covariates $(x_1, x_2, x_3, x_4, x_5)$: $x_1$ is gender, $x_2$ is POC, $x_3$ is age during the show, $x_4$ is personality type, and $x_5$ is region 
+* the coefficients $(\beta1, \beta2, \beta3, \beta4, \beta5)$ measures the impact of covariates
+* $h_0(t)\geq 0$ is the baseline hazard function. It is the hazard function for an individual if all $(x_1, x_2, x_3, x_4, x_5)$ are equal to zero.
+
+
+Connection with the Log-Rank Test
+
+Suppose we have a single predictor $(p=1)$, which we assume to be binary. To determine whether there is a difference between the survival times of the obeservations in the group. For instance, we consider test to compare difference survival times between female and male.
+The null hypothesis is that the two groups have identical hazard functions,
+$$H_0: h_1(t) = h_2(t)$$
+
 ## Result
+
+```{r}
+## reading in data
+survivor_data_final = 
+  read.csv("data/survivor_data_final.csv")
+## Create status and time variable
+# filtering of seasons moved to data wrangling file
+# replaced all survivor_final with survivor_data_final since filtering was moved to use for EDA
+status <- c()
+time <- c()
+for (i in 1:nrow(survivor_data_final))
+  {
+  if (survivor_data_final[i,17] == "Quit") {
+    status[i] <- 0
+    time[i] <- survivor_data_final$days_survived[i]
+  }
+  else if (survivor_data_final[i,17] == "Sole Survivor") {
+    status[i] <- 0
+    time[i] <- survivor_data_final$days_survived[i]
+  } 
+  else if (survivor_data_final[i,17] == "Runner-up") {
+    status[i] <- 0
+    time[i] <- survivor_data_final$days_survived[i]
+  } else if (survivor_data_final[i,17] == "Co-runner-up") {
+    status[i] <- 0
+    time[i] <- survivor_data_final$days_survived[i]
+  }
+  else {
+    status[i] <- 1
+    time[i] <- survivor_data_final$days_survived[i]
+  }
+}
+survivor_data_final[,25] <- status
+survivor_data_final[,26] <- time
+colnames(survivor_data_final)[25] <- "status"
+colnames(survivor_data_final)[26] <- "time"
+
+surv_model_cox1 <- coxph(data = survivor_data_final,
+  Surv(time, status) ~ gender + poc + age_during_show + personality_type_binary + region)
+# summary(surv_model_cox1)
+#Clean table for Cox PH
+tabcoxph(surv_model_cox1, 
+         var.labels = list(gender = "Gender", poc = "POC", age_during_show = "Age", personality_type_binary = "Personality Type",  region = "Region"), 
+         decimals = 4)
+```
+
+**HR interpretations:**\
+As age increases in years, there is no difference in survival since the hazard ratio is 1. We are 95% confident that the HR falls between 0.99 to 1.01. However, the HR is not statistically significant.  \
+- For gender, the HR value of 0.96 suggests that the survival time for male contestants is longer compared to female contestants (the reference category). We are 95% confident that the HR falls between 0.82 and 1.12. However, the HR is not statistically significant.  \
+- For POC, the HR value of 0.89 would suggest that the survival time for White contestants is longer compared to POC contestants (the reference category). We are 95% confident that the HR falls between 0.75 and 1.06. However, the HR is not statistically significant.  \
+- For personality type, the HR value of 1.07 would suggest that the survival time for introvert contestants is shorter compared to extrovert contestants (the reference category). We are 95% confident that the HR falls between 0.91 - 1.25. However, the HR is not statistically significant.  \
+- For region, Midwest is the reference category. However, all of these hazard ratios are not statistically significant, p-value > 0.05.\
+
+  * The HR value of 0.99 for Northeast suggests that the survival time for contestants from the NE is longer compared to contestants from the Midwest.  
+  * The HR value of 1.29 for the South suggests that the survival time for contestants from the South is shorter compared to contestants from the Midwest.  
+  * The HR value of 1.18 for the West suggests that the survival time for contestants from the West is shorter compared to contestants from the Midwest. 
+
+
+## Estimation and Statistical Inference
+
+We use `ggsurvplot` function to draw the survival curves and calculate log-rank test p-value.
+
+### Kaplan-Meier plotter-personality
+```{r}
+surv_model_per <- survfit(Surv(time, status)~ survivor_data_final$personality_type_binary)
+ggsurvplot(
+  surv_model_per,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  palette =
+    c("#E7B800", "#2E9FDF"),# custom color palettes
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value show log-rank test
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = "strata",# Risk table color by groups
+  legend.labs =
+    c("Extrovert", "Introvert"),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)
+#basic graph
+# plot(surv_model_per, xlab = "Days",
+#      ylab = "Estimated Probability of Survival", col = c(2,4))
+```
+
+### Kaplan-Meier plotter-White vs Non-White
+```{r}
+surv_model_poc <- survfit(Surv(time, status)~ survivor_data_final$poc)
+ggsurvplot(
+  surv_model_poc,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = "strata",# Risk table color by groups
+  legend.labs =
+    c("POC", "White"),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)
+```
+
+### Kaplan-Meier plotter-gender
+```{r}
+surv_model_sex <- survfit(Surv(time, status)~ survivor_data_final$gender)
+ggsurvplot(
+  surv_model_sex,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = "strata",# Risk table color by groups
+  legend.labs =
+    c("female", "male"),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)
+```
+
+### Kaplan-Meier plotter-Region
+```{r}
+surv_model_Region <- survfit(Surv(time, status)~ survivor_data_final$region)
+ggsurvplot(
+  surv_model_Region,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = "strata",# Risk table color by groups
+  legend.labs =
+    c("Midwest", "Northeast", "South", "West"),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)
+```
+
+### Kaplan-Meier plotter-Northeast
+```{r}
+surv_model_NE <- survfit(Surv(time, status)~ survivor_data_final$NE)
+ggsurvplot(
+  surv_model_NE,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = "strata",# Risk table color by groups
+  legend.labs =
+    c("Non-Northeast", "Northeast"),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)
+```
+
+### Kaplan-Meier plotter-South
+```{r}
+surv_model_South <- survfit(Surv(time, status)~ survivor_data_final$South)
+ggsurvplot(
+  surv_model_South,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = "strata",# Risk table color by groups
+  legend.labs =
+    c("Non-South", "South"),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)
+```
+
+### Kaplan-Meier plotter-West
+```{r}
+surv_model_West <- survfit(Surv(time, status)~ survivor_data_final$West)
+ggsurvplot(
+  surv_model_West,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = "strata",# Risk table color by groups
+  legend.labs =
+    c("Non-West", "West"),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)
+```
+
+### Kaplan-Meier plotter-Midwest
+```{r}
+surv_model_Midwest <- survfit(Surv(time, status)~ survivor_data_final$Midwest)
+ggsurvplot(
+  surv_model_Midwest,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = "strata",# Risk table color by groups
+  legend.labs =
+    c("Non-Midwest", "Midwest"),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)
+```
+
+

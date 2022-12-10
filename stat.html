@@ -36,6 +36,8 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -414,9 +416,494 @@ time. The status indicator as,</p>
 <p>Thus, <span class="math inline">\(\delta\)</span> = 1 if we observe
 the true survival time, and <span class="math inline">\(\delta\)</span>
 = 0 if we observe the censoring.</p>
+<p>We use the Cox-propositional hazard model to evaluate the effect of
+several factors on survival time in Survivor Show. It allows us to
+examine how specified factors influence the rate of the event that we
+interested at a particular point in time. This rate is the hazard rate.
+Covariates are gender, poc, age, personality type, and region in this
+model. The Cox model is expressed by the hazard function denoted by
+h(t). Briefly, the hazard function can be interpreted as the risk of
+voted out at time t. It can be estimated as follow: <span
+class="math display">\[h(t) = h_0(t)\exp(x_1\beta_1 + x_2\beta_2 +
+x_3\beta_3 + x_4\beta_4 + x_4\beta_5)\]</span> where,  </p>
+<ul>
+<li><span class="math inline">\(t\)</span> represents the survival
+time</li>
+<li><span class="math inline">\(h(t)\)</span> is the hazard function
+determined by a set of participants’ covariates <span
+class="math inline">\((x_1, x_2, x_3, x_4, x_5)\)</span>: <span
+class="math inline">\(x_1\)</span> is gender, <span
+class="math inline">\(x_2\)</span> is POC, <span
+class="math inline">\(x_3\)</span> is age during the show, <span
+class="math inline">\(x_4\)</span> is personality type, and <span
+class="math inline">\(x_5\)</span> is region</li>
+<li>the coefficients <span class="math inline">\((\beta1, \beta2,
+\beta3, \beta4, \beta5)\)</span> measures the impact of covariates</li>
+<li><span class="math inline">\(h_0(t)\geq 0\)</span> is the baseline
+hazard function. It is the hazard function for an individual if all
+<span class="math inline">\((x_1, x_2, x_3, x_4, x_5)\)</span> are equal
+to zero.</li>
+</ul>
+<p>Connection with the Log-Rank Test</p>
+<p>Suppose we have a single predictor <span
+class="math inline">\((p=1)\)</span>, which we assume to be binary. To
+determine whether there is a difference between the survival times of
+the obeservations in the group. For instance, we consider test to
+compare difference survival times between female and male. The null
+hypothesis is that the two groups have identical hazard functions, <span
+class="math display">\[H_0: h_1(t) = h_2(t)\]</span></p>
 </div>
 <div id="result" class="section level2">
 <h2>Result</h2>
+<pre class="r"><code>## reading in data
+survivor_data_final = 
+  read.csv(&quot;data/survivor_data_final.csv&quot;)
+## Create status and time variable
+# filtering of seasons moved to data wrangling file
+# replaced all survivor_final with survivor_data_final since filtering was moved to use for EDA
+status &lt;- c()
+time &lt;- c()
+for (i in 1:nrow(survivor_data_final))
+  {
+  if (survivor_data_final[i,17] == &quot;Quit&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  }
+  else if (survivor_data_final[i,17] == &quot;Sole Survivor&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  } 
+  else if (survivor_data_final[i,17] == &quot;Runner-up&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  } else if (survivor_data_final[i,17] == &quot;Co-runner-up&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  }
+  else {
+    status[i] &lt;- 1
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  }
+}
+survivor_data_final[,25] &lt;- status
+survivor_data_final[,26] &lt;- time
+colnames(survivor_data_final)[25] &lt;- &quot;status&quot;
+colnames(survivor_data_final)[26] &lt;- &quot;time&quot;
+
+surv_model_cox1 &lt;- coxph(data = survivor_data_final,
+  Surv(time, status) ~ gender + poc + age_during_show + personality_type_binary + region)
+# summary(surv_model_cox1)
+#Clean table for Cox PH
+tabcoxph(surv_model_cox1, 
+         var.labels = list(gender = &quot;Gender&quot;, poc = &quot;POC&quot;, age_during_show = &quot;Age&quot;, personality_type_binary = &quot;Personality Type&quot;,  region = &quot;Region&quot;), 
+         decimals = 4)</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Variable
+</th>
+<th style="text-align:left;">
+Beta (SE)
+</th>
+<th style="text-align:left;">
+HR (95% CI)
+</th>
+<th style="text-align:left;">
+P
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Gender
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Female (ref)
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Male
+</td>
+<td style="text-align:left;">
+-0.0545 (0.0809)
+</td>
+<td style="text-align:left;">
+0.9469 (0.8081, 1.1096)
+</td>
+<td style="text-align:left;">
+0.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+POC
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     POC (ref)
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     White
+</td>
+<td style="text-align:left;">
+-0.1124 (0.0898)
+</td>
+<td style="text-align:left;">
+0.8937 (0.7495, 1.0656)
+</td>
+<td style="text-align:left;">
+0.21
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:left;">
+-0.0002 (0.0040)
+</td>
+<td style="text-align:left;">
+0.9998 (0.9920, 1.0076)
+</td>
+<td style="text-align:left;">
+0.95
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Personality Type
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Extrovert (ref)
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Introvert
+</td>
+<td style="text-align:left;">
+0.0652 (0.0815)
+</td>
+<td style="text-align:left;">
+1.0673 (0.9097, 1.2523)
+</td>
+<td style="text-align:left;">
+0.42
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Region
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Midwest (ref)
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Northeast
+</td>
+<td style="text-align:left;">
+-0.0022 (0.1454)
+</td>
+<td style="text-align:left;">
+0.9978 (0.7504, 1.3268)
+</td>
+<td style="text-align:left;">
+0.99
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     South
+</td>
+<td style="text-align:left;">
+0.2646 (0.1366)
+</td>
+<td style="text-align:left;">
+1.3029 (0.9968, 1.7029)
+</td>
+<td style="text-align:left;">
+0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     West
+</td>
+<td style="text-align:left;">
+0.1695 (0.1319)
+</td>
+<td style="text-align:left;">
+1.1847 (0.9148, 1.5343)
+</td>
+<td style="text-align:left;">
+0.20
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>HR interpretations:</strong><br />
+As age increases in years, there is no difference in survival since the
+hazard ratio is 1. We are 95% confident that the HR falls between 0.99
+to 1.01. However, the HR is not statistically significant.<br />
+- For gender, the HR value of 0.96 suggests that the survival time for
+male contestants is longer compared to female contestants (the reference
+category). We are 95% confident that the HR falls between 0.82 and 1.12.
+However, the HR is not statistically significant.<br />
+- For POC, the HR value of 0.89 would suggest that the survival time for
+White contestants is longer compared to POC contestants (the reference
+category). We are 95% confident that the HR falls between 0.75 and 1.06.
+However, the HR is not statistically significant.<br />
+- For personality type, the HR value of 1.07 would suggest that the
+survival time for introvert contestants is shorter compared to extrovert
+contestants (the reference category). We are 95% confident that the HR
+falls between 0.91 - 1.25. However, the HR is not statistically
+significant.<br />
+- For region, Midwest is the reference category. However, all of these
+hazard ratios are not statistically significant, p-value &gt;
+0.05.<br />
+</p>
+<ul>
+<li>The HR value of 0.99 for Northeast suggests that the survival time
+for contestants from the NE is longer compared to contestants from the
+Midwest.<br />
+</li>
+<li>The HR value of 1.29 for the South suggests that the survival time
+for contestants from the South is shorter compared to contestants from
+the Midwest.<br />
+</li>
+<li>The HR value of 1.18 for the West suggests that the survival time
+for contestants from the West is shorter compared to contestants from
+the Midwest.</li>
+</ul>
+</div>
+<div id="estimation-and-statistical-inference" class="section level2">
+<h2>Estimation and Statistical Inference</h2>
+<p>We use <code>ggsurvplot</code> function to draw the survival curves
+and calculate log-rank test p-value.</p>
+<div id="kaplan-meier-plotter-personality" class="section level3">
+<h3>Kaplan-Meier plotter-personality</h3>
+<pre class="r"><code>surv_model_per &lt;- survfit(Surv(time, status)~ survivor_data_final$personality_type_binary)
+ggsurvplot(
+  surv_model_per,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  palette =
+    c(&quot;#E7B800&quot;, &quot;#2E9FDF&quot;),# custom color palettes
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value show log-rank test
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Extrovert&quot;, &quot;Introvert&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>#basic graph
+# plot(surv_model_per, xlab = &quot;Days&quot;,
+#      ylab = &quot;Estimated Probability of Survival&quot;, col = c(2,4))</code></pre>
+</div>
+<div id="kaplan-meier-plotter-white-vs-non-white"
+class="section level3">
+<h3>Kaplan-Meier plotter-White vs Non-White</h3>
+<pre class="r"><code>surv_model_poc &lt;- survfit(Surv(time, status)~ survivor_data_final$poc)
+ggsurvplot(
+  surv_model_poc,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;POC&quot;, &quot;White&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-gender" class="section level3">
+<h3>Kaplan-Meier plotter-gender</h3>
+<pre class="r"><code>surv_model_sex &lt;- survfit(Surv(time, status)~ survivor_data_final$gender)
+ggsurvplot(
+  surv_model_sex,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;female&quot;, &quot;male&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-region" class="section level3">
+<h3>Kaplan-Meier plotter-Region</h3>
+<pre class="r"><code>surv_model_Region &lt;- survfit(Surv(time, status)~ survivor_data_final$region)
+ggsurvplot(
+  surv_model_Region,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Midwest&quot;, &quot;Northeast&quot;, &quot;South&quot;, &quot;West&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-northeast" class="section level3">
+<h3>Kaplan-Meier plotter-Northeast</h3>
+<pre class="r"><code>surv_model_NE &lt;- survfit(Surv(time, status)~ survivor_data_final$NE)
+ggsurvplot(
+  surv_model_NE,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Non-Northeast&quot;, &quot;Northeast&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-south" class="section level3">
+<h3>Kaplan-Meier plotter-South</h3>
+<pre class="r"><code>surv_model_South &lt;- survfit(Surv(time, status)~ survivor_data_final$South)
+ggsurvplot(
+  surv_model_South,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Non-South&quot;, &quot;South&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-west" class="section level3">
+<h3>Kaplan-Meier plotter-West</h3>
+<pre class="r"><code>surv_model_West &lt;- survfit(Surv(time, status)~ survivor_data_final$West)
+ggsurvplot(
+  surv_model_West,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Non-West&quot;, &quot;West&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-midwest" class="section level3">
+<h3>Kaplan-Meier plotter-Midwest</h3>
+<pre class="r"><code>surv_model_Midwest &lt;- survfit(Surv(time, status)~ survivor_data_final$Midwest)
+ggsurvplot(
+  surv_model_Midwest,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Non-Midwest&quot;, &quot;Midwest&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
 </div>
 
 
