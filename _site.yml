@@ -3,8 +3,6 @@ output_dir: "."
 navbar:
   title: "Home"
   right:
-    - text: "Overview"
-      href: overview.html
     - text: "Exploratory Data Analysis"
       href: eda.html
     - text: "Statistical Analysis"
