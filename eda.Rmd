@@ -21,6 +21,135 @@ library(RColorBrewer)
 library(usmap)
 ```
 
+## Data Cleaning and Processing
+
+In order to analyze the show *Survivor*, we used data sources from the `castaway_details` and `castaways` datasets,^[ https://github.com/doehm/survivoR] as well as others, from the `survivoR` package.^[https://cran.r-project.org/web//packages/survivoR/survivoR.pdf] This fan-made package contains data from all seasons of *Survivor*. According to the authors of the package, “the data was sourced from Wikipedia and the Survivor Wiki. Other data, such as the tribe colours, was manually recorded and entered by myself and contributors.” As each dataset contained distinct information on the contestants for each season, it was necessary to use joins to combine datasets to produce a final dataset to be analyzed. This was performed using a full join on the contestants’ full names. We primarily rely on contestant occurrences as the unit of analysis in our report, though it should be noted that distinct individuals can appear in multiple seasons and/or in multiple episodes per season. Additionally, in order to standardize our results for the survival analysis and exploratory data analysis, we removed seasons 2, 41, 42, and 43 as the seasons contained data for a different number of days from the standard 39 days. As the original data contains information from several versions around the globe, it was integral to filter and only analyze data from the U.S. edition. In order to best model our covariates of interest, we then created a new personality type variable (extracting whether a person is an introvert or extrovert) and a POC indicator variable (provided by the package) instead of individual races. We also used contestants' home states to code contestants into a region based on census regions and divisions of the United States.^[https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf] Furthermore, we determined that missing data was not an issue, as it occurred in low frequency and was not patterned in nature. The final dataset used in the analysis contains unique information for each castaway for each season, including the following key variables:
+
+- `version_season`: version and season number
+- `full_name`: contestant full name
+- `age_during_show` : age, in years
+- `poc` : POC indicator, if known. Else, marked as White. 
+- `gender`: 2 levels: Female, Male. 
+- `personality_type_binary` : Extracted from the Myer-Briggs personality type of the castaway. 2 levels: Extrovert, Introvert.
+- `days_survived`: Number of days survived in the show until elimination
+- `region`: region in the U.S. where the contestant is from. We created this variable based on the `state` variable available in the dataset. 4 levels: West, Midwest, Northeast, South. Indicator variables for each of the 4 regions have also been created for analyses. 
+
+```{r, echo = TRUE}
+
+## cleaning Castaway Details dataset: filtering-out non-US seasons, creating personality type variable
+castaway_details_us = castaway_details %>% 
+  filter(str_detect(castaway_id, '^US')) %>%
+  mutate(
+    personality_type_binary = ifelse(
+      str_detect(personality_type, '^E'), "Extrovert", "Introvert")) %>%
+  select(-c(castaway_id, castaway, personality_type))
+
+## Castaways dataset: filtering-out non-US seasons, renaming variables
+castaways_us = castaways %>% filter(version == "US") %>%
+  select(-c(version, season_name, season, castaway_id, castaway, jury_status, original_tribe)) %>%
+  rename(age_during_show = age, days_survived = day)
+
+## joining datasets
+survivor_data_final = full_join(castaway_details_us, castaways_us, by = "full_name")
+
+# check for multiple unique names per season
+contestant_count_unique_rec = survivor_data_final %>%
+  group_by(version_season, full_name) %>%
+  summarise(count = n()) %>%
+  mutate(num = row_number())
+
+## summarizing the number of contestants per season & adding to joined dataset
+contestant_count_df = survivor_data_final %>%
+  group_by(version_season) %>%
+  summarise(contestant_count = n_distinct(full_name))
+
+survivor_data_final = full_join(survivor_data_final, contestant_count_df, by = "version_season")
+
+## reordering variables, create new variable ethnicity, fix personality type variable
+survivor_data_final = survivor_data_final %>%
+  select(c("version_season", "full_name", "age_during_show", "race", "poc", "date_of_birth", "date_of_death", "occupation", "gender", "ethnicity", "personality_type_binary", "episode", "days_survived", "order", "contestant_count", "result", "city", "state")) %>% 
+    mutate(ethnicity = ifelse(
+      str_detect(poc, 'White'), survivor_data_final$poc, survivor_data_final$race)) %>% 
+  arrange(version_season) %>%
+  mutate(personality_type_binary = as.factor(personality_type_binary))
+
+## adding region variable
+survivor_data_final = survivor_data_final %>%
+mutate(region = 
+    ifelse(
+    state == "Connecticut" 
+    | state == "Maine" 
+    | state == "Massachusetts" 
+    | state == "New Hampshire"
+    | state == "Rhode Island"
+    | state == "Vermont" 
+    | state == "New Jersey" 
+    | state == "New York" 
+    | state == "Pennsylvania", 
+    "Northeast",
+    
+    ifelse(
+    state == "Delaware" 
+    | state == "District of Columbia" 
+    | state == "Florida" 
+    | state == "Georgia" 
+    | state == "Maryland" 
+    | state == "North Carolina"
+    | state == "South Carolina" 
+    | state == "Virginia"
+    | state == "West Virginia" 
+    | state == "Alabama"
+    | state == "Kentucky" 
+    | state == "Mississippi"
+    | state == "Tennessee" 
+    | state == "Arkansas" 
+    | state == "Louisiana" 
+    | state == "Oklahoma" 
+    | state == "Texas", 
+      "South", 
+      
+    ifelse(
+      state == "Arizona"
+      | state == "Colorado"
+      | state == "Idaho"
+      | state == "New Mexico"
+      | state == "Montana"
+      | state == "Utah" 
+      | state == " Nevada"
+      | state == "Wyoming"
+      | state == "Alaska"
+      | state == "California"
+      | state == "Hawaii"
+      | state == "Oregon"
+      | state == "Washington"
+    ,  "West", "Midwest"
+    )))
+  ) %>%
+  mutate(NE = ifelse(region == "Northeast", 1, 0)) %>%
+  mutate(South = ifelse(region == "South", 1, 0)) %>%
+  mutate(West = ifelse(region == "West", 1, 0)) %>%
+  mutate(Midwest = ifelse(region == "Midwest", 1, 0))
+
+survivor_data_final_including_2_41_42_43 = survivor_data_final
+
+write.csv(survivor_data_final_including_2_41_42_43, file = "./data/survivor_data_final_including_2_41_42_43.csv")
+
+# preparing data for survival analysis
+
+## season 41 and 42, the longest survival time is 26 days, exclude these seasons
+## season 2, the longest survival time is 42 days, exclude this season
+## season 43 is incomplete, exclude this season
+
+survivor_data_final = survivor_data_final %>%
+  filter(!(version_season %in% c("US02", "US41", "US42", "US43")))
+
+## calculating percent NAs for all variables
+survivor_data_final %>% summarise_all(list(name = ~sum(is.na(.))/length(.)))
+
+## Saving final dataset as csv file
+write.csv(survivor_data_final, file = "./data/survivor_data_final.csv")
+```
+
 ```{r}
 survivor_data_final = read.csv("data/survivor_data_final.csv")
 ```

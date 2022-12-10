@@ -335,9 +335,6 @@ div.tocify {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="overview.html">Overview</a>
-</li>
-<li>
   <a href="eda.html">Exploratory Data Analysis</a>
 </li>
 <li>
@@ -389,7 +386,183 @@ div.tocify {
 </div>
 
 
+<div id="data-cleaning-and-processing" class="section level2">
+<h2>Data Cleaning and Processing</h2>
+<p>In order to analyze the show <em>Survivor</em>, we used data sources
+from the <code>castaway_details</code> and <code>castaways</code>
+datasets,<a href="#fn1" class="footnote-ref"
+id="fnref1"><sup>1</sup></a> as well as others, from the
+<code>survivoR</code> package.<a href="#fn2" class="footnote-ref"
+id="fnref2"><sup>2</sup></a> This fan-made package contains data from
+all seasons of <em>Survivor</em>. According to the authors of the
+package, “the data was sourced from Wikipedia and the Survivor Wiki.
+Other data, such as the tribe colours, was manually recorded and entered
+by myself and contributors.” As each dataset contained distinct
+information on the contestants for each season, it was necessary to use
+joins to combine datasets to produce a final dataset to be analyzed.
+This was performed using a full join on the contestants’ full names. We
+primarily rely on contestant occurrences as the unit of analysis in our
+report, though it should be noted that distinct individuals can appear
+in multiple seasons and/or in multiple episodes per season.
+Additionally, in order to standardize our results for the survival
+analysis and exploratory data analysis, we removed seasons 2, 41, 42,
+and 43 as the seasons contained data for a different number of days from
+the standard 39 days. As the original data contains information from
+several versions around the globe, it was integral to filter and only
+analyze data from the U.S. edition. In order to best model our
+covariates of interest, we then created a new personality type variable
+(extracting whether a person is an introvert or extrovert) and a POC
+indicator variable (provided by the package) instead of individual
+races. We also used contestants’ home states to code contestants into a
+region based on census regions and divisions of the United States.<a
+href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>
+Furthermore, we determined that missing data was not an issue, as it
+occurred in low frequency and was not patterned in nature. The final
+dataset used in the analysis contains unique information for each
+castaway for each season, including the following key variables:</p>
+<ul>
+<li><code>version_season</code>: version and season number</li>
+<li><code>full_name</code>: contestant full name</li>
+<li><code>age_during_show</code> : age, in years</li>
+<li><code>poc</code> : POC indicator, if known. Else, marked as
+White.</li>
+<li><code>gender</code>: 2 levels: Female, Male.</li>
+<li><code>personality_type_binary</code> : Extracted from the
+Myer-Briggs personality type of the castaway. 2 levels: Extrovert,
+Introvert.</li>
+<li><code>days_survived</code>: Number of days survived in the show
+until elimination</li>
+<li><code>region</code>: region in the U.S. where the contestant is
+from. We created this variable based on the <code>state</code> variable
+available in the dataset. 4 levels: West, Midwest, Northeast, South.
+Indicator variables for each of the 4 regions have also been created for
+analyses.</li>
+</ul>
+<pre class="r"><code>## cleaning Castaway Details dataset: filtering-out non-US seasons, creating personality type variable
+castaway_details_us = castaway_details %&gt;% 
+  filter(str_detect(castaway_id, &#39;^US&#39;)) %&gt;%
+  mutate(
+    personality_type_binary = ifelse(
+      str_detect(personality_type, &#39;^E&#39;), &quot;Extrovert&quot;, &quot;Introvert&quot;)) %&gt;%
+  select(-c(castaway_id, castaway, personality_type))
+
+## Castaways dataset: filtering-out non-US seasons, renaming variables
+castaways_us = castaways %&gt;% filter(version == &quot;US&quot;) %&gt;%
+  select(-c(version, season_name, season, castaway_id, castaway, jury_status, original_tribe)) %&gt;%
+  rename(age_during_show = age, days_survived = day)
+
+## joining datasets
+survivor_data_final = full_join(castaway_details_us, castaways_us, by = &quot;full_name&quot;)
+
+# check for multiple unique names per season
+contestant_count_unique_rec = survivor_data_final %&gt;%
+  group_by(version_season, full_name) %&gt;%
+  summarise(count = n()) %&gt;%
+  mutate(num = row_number())</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;version_season&#39;. You can override using
+## the `.groups` argument.</code></pre>
+<pre class="r"><code>## summarizing the number of contestants per season &amp; adding to joined dataset
+contestant_count_df = survivor_data_final %&gt;%
+  group_by(version_season) %&gt;%
+  summarise(contestant_count = n_distinct(full_name))
+
+survivor_data_final = full_join(survivor_data_final, contestant_count_df, by = &quot;version_season&quot;)
+
+## reordering variables, create new variable ethnicity, fix personality type variable
+survivor_data_final = survivor_data_final %&gt;%
+  select(c(&quot;version_season&quot;, &quot;full_name&quot;, &quot;age_during_show&quot;, &quot;race&quot;, &quot;poc&quot;, &quot;date_of_birth&quot;, &quot;date_of_death&quot;, &quot;occupation&quot;, &quot;gender&quot;, &quot;ethnicity&quot;, &quot;personality_type_binary&quot;, &quot;episode&quot;, &quot;days_survived&quot;, &quot;order&quot;, &quot;contestant_count&quot;, &quot;result&quot;, &quot;city&quot;, &quot;state&quot;)) %&gt;% 
+    mutate(ethnicity = ifelse(
+      str_detect(poc, &#39;White&#39;), survivor_data_final$poc, survivor_data_final$race)) %&gt;% 
+  arrange(version_season) %&gt;%
+  mutate(personality_type_binary = as.factor(personality_type_binary))
+
+## adding region variable
+survivor_data_final = survivor_data_final %&gt;%
+mutate(region = 
+    ifelse(
+    state == &quot;Connecticut&quot; 
+    | state == &quot;Maine&quot; 
+    | state == &quot;Massachusetts&quot; 
+    | state == &quot;New Hampshire&quot;
+    | state == &quot;Rhode Island&quot;
+    | state == &quot;Vermont&quot; 
+    | state == &quot;New Jersey&quot; 
+    | state == &quot;New York&quot; 
+    | state == &quot;Pennsylvania&quot;, 
+    &quot;Northeast&quot;,
+    
+    ifelse(
+    state == &quot;Delaware&quot; 
+    | state == &quot;District of Columbia&quot; 
+    | state == &quot;Florida&quot; 
+    | state == &quot;Georgia&quot; 
+    | state == &quot;Maryland&quot; 
+    | state == &quot;North Carolina&quot;
+    | state == &quot;South Carolina&quot; 
+    | state == &quot;Virginia&quot;
+    | state == &quot;West Virginia&quot; 
+    | state == &quot;Alabama&quot;
+    | state == &quot;Kentucky&quot; 
+    | state == &quot;Mississippi&quot;
+    | state == &quot;Tennessee&quot; 
+    | state == &quot;Arkansas&quot; 
+    | state == &quot;Louisiana&quot; 
+    | state == &quot;Oklahoma&quot; 
+    | state == &quot;Texas&quot;, 
+      &quot;South&quot;, 
+      
+    ifelse(
+      state == &quot;Arizona&quot;
+      | state == &quot;Colorado&quot;
+      | state == &quot;Idaho&quot;
+      | state == &quot;New Mexico&quot;
+      | state == &quot;Montana&quot;
+      | state == &quot;Utah&quot; 
+      | state == &quot; Nevada&quot;
+      | state == &quot;Wyoming&quot;
+      | state == &quot;Alaska&quot;
+      | state == &quot;California&quot;
+      | state == &quot;Hawaii&quot;
+      | state == &quot;Oregon&quot;
+      | state == &quot;Washington&quot;
+    ,  &quot;West&quot;, &quot;Midwest&quot;
+    )))
+  ) %&gt;%
+  mutate(NE = ifelse(region == &quot;Northeast&quot;, 1, 0)) %&gt;%
+  mutate(South = ifelse(region == &quot;South&quot;, 1, 0)) %&gt;%
+  mutate(West = ifelse(region == &quot;West&quot;, 1, 0)) %&gt;%
+  mutate(Midwest = ifelse(region == &quot;Midwest&quot;, 1, 0))
+
+survivor_data_final_including_2_41_42_43 = survivor_data_final
+
+write.csv(survivor_data_final_including_2_41_42_43, file = &quot;./data/survivor_data_final_including_2_41_42_43.csv&quot;)
+
+# preparing data for survival analysis
+
+## season 41 and 42, the longest survival time is 26 days, exclude these seasons
+## season 2, the longest survival time is 42 days, exclude this season
+## season 43 is incomplete, exclude this season
+
+survivor_data_final = survivor_data_final %&gt;%
+  filter(!(version_season %in% c(&quot;US02&quot;, &quot;US41&quot;, &quot;US42&quot;, &quot;US43&quot;)))
+
+## calculating percent NAs for all variables
+survivor_data_final %&gt;% summarise_all(list(name = ~sum(is.na(.))/length(.)))</code></pre>
+<pre><code>## # A tibble: 1 × 23
+##   version_seas…¹ full_…² age_d…³ race_…⁴ poc_n…⁵ date_…⁶ date_…⁷ occup…⁸ gende…⁹
+##            &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1              0       0       0   0.728 0.00549 0.00549   0.981 0.00549 0.00549
+## # … with 14 more variables: ethnicity_name &lt;dbl&gt;,
+## #   personality_type_binary_name &lt;dbl&gt;, episode_name &lt;dbl&gt;,
+## #   days_survived_name &lt;dbl&gt;, order_name &lt;dbl&gt;, contestant_count_name &lt;dbl&gt;,
+## #   result_name &lt;dbl&gt;, city_name &lt;dbl&gt;, state_name &lt;dbl&gt;, region_name &lt;dbl&gt;,
+## #   NE_name &lt;dbl&gt;, South_name &lt;dbl&gt;, West_name &lt;dbl&gt;, Midwest_name &lt;dbl&gt;, and
+## #   abbreviated variable names ¹​version_season_name, ²​full_name_name,
+## #   ³​age_during_show_name, ⁴​race_name, ⁵​poc_name, ⁶​date_of_birth_name, …</code></pre>
+<pre class="r"><code>## Saving final dataset as csv file
+write.csv(survivor_data_final, file = &quot;./data/survivor_data_final.csv&quot;)</code></pre>
 <pre class="r"><code>survivor_data_final = read.csv(&quot;data/survivor_data_final.csv&quot;)</code></pre>
+</div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
 <p>As a first step in our exploratory data analysis, we summarize
@@ -413,12 +586,12 @@ contestant occurrences.</p>
                            c(age_during_show) ~ &quot;Age During Show (Years)&quot;,
                            c(days_survived) ~ &quot;Survival Time on Show (Days)&quot;)) %&gt;% 
   bold_labels()</code></pre>
-<div id="bheikkintn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ceordvscpr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#bheikkintn .gt_table {
+#ceordvscpr .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -443,7 +616,7 @@ contestant occurrences.</p>
   border-left-color: #D3D3D3;
 }
 
-#bheikkintn .gt_heading {
+#ceordvscpr .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -455,12 +628,12 @@ contestant occurrences.</p>
   border-right-color: #D3D3D3;
 }
 
-#bheikkintn .gt_caption {
+#ceordvscpr .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#bheikkintn .gt_title {
+#ceordvscpr .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -472,7 +645,7 @@ contestant occurrences.</p>
   border-bottom-width: 0;
 }
 
-#bheikkintn .gt_subtitle {
+#ceordvscpr .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -484,13 +657,13 @@ contestant occurrences.</p>
   border-top-width: 0;
 }
 
-#bheikkintn .gt_bottom_border {
+#ceordvscpr .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#bheikkintn .gt_col_headings {
+#ceordvscpr .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -505,7 +678,7 @@ contestant occurrences.</p>
   border-right-color: #D3D3D3;
 }
 
-#bheikkintn .gt_col_heading {
+#ceordvscpr .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -525,7 +698,7 @@ contestant occurrences.</p>
   overflow-x: hidden;
 }
 
-#bheikkintn .gt_column_spanner_outer {
+#ceordvscpr .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -537,15 +710,15 @@ contestant occurrences.</p>
   padding-right: 4px;
 }
 
-#bheikkintn .gt_column_spanner_outer:first-child {
+#ceordvscpr .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#bheikkintn .gt_column_spanner_outer:last-child {
+#ceordvscpr .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#bheikkintn .gt_column_spanner {
+#ceordvscpr .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -557,7 +730,7 @@ contestant occurrences.</p>
   width: 100%;
 }
 
-#bheikkintn .gt_group_heading {
+#ceordvscpr .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -583,7 +756,7 @@ contestant occurrences.</p>
   text-align: left;
 }
 
-#bheikkintn .gt_empty_group_heading {
+#ceordvscpr .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -598,15 +771,15 @@ contestant occurrences.</p>
   vertical-align: middle;
 }
 
-#bheikkintn .gt_from_md > :first-child {
+#ceordvscpr .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#bheikkintn .gt_from_md > :last-child {
+#ceordvscpr .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#bheikkintn .gt_row {
+#ceordvscpr .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -625,7 +798,7 @@ contestant occurrences.</p>
   overflow-x: hidden;
 }
 
-#bheikkintn .gt_stub {
+#ceordvscpr .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -638,7 +811,7 @@ contestant occurrences.</p>
   padding-right: 5px;
 }
 
-#bheikkintn .gt_stub_row_group {
+#ceordvscpr .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -652,11 +825,11 @@ contestant occurrences.</p>
   vertical-align: top;
 }
 
-#bheikkintn .gt_row_group_first td {
+#ceordvscpr .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#bheikkintn .gt_summary_row {
+#ceordvscpr .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -666,16 +839,16 @@ contestant occurrences.</p>
   padding-right: 5px;
 }
 
-#bheikkintn .gt_first_summary_row {
+#ceordvscpr .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#bheikkintn .gt_first_summary_row.thick {
+#ceordvscpr .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#bheikkintn .gt_last_summary_row {
+#ceordvscpr .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -685,7 +858,7 @@ contestant occurrences.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#bheikkintn .gt_grand_summary_row {
+#ceordvscpr .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -695,7 +868,7 @@ contestant occurrences.</p>
   padding-right: 5px;
 }
 
-#bheikkintn .gt_first_grand_summary_row {
+#ceordvscpr .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -705,11 +878,11 @@ contestant occurrences.</p>
   border-top-color: #D3D3D3;
 }
 
-#bheikkintn .gt_striped {
+#ceordvscpr .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#bheikkintn .gt_table_body {
+#ceordvscpr .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -718,7 +891,7 @@ contestant occurrences.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#bheikkintn .gt_footnotes {
+#ceordvscpr .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -732,7 +905,7 @@ contestant occurrences.</p>
   border-right-color: #D3D3D3;
 }
 
-#bheikkintn .gt_footnote {
+#ceordvscpr .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -741,7 +914,7 @@ contestant occurrences.</p>
   padding-right: 5px;
 }
 
-#bheikkintn .gt_sourcenotes {
+#ceordvscpr .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -755,7 +928,7 @@ contestant occurrences.</p>
   border-right-color: #D3D3D3;
 }
 
-#bheikkintn .gt_sourcenote {
+#ceordvscpr .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -763,64 +936,64 @@ contestant occurrences.</p>
   padding-right: 5px;
 }
 
-#bheikkintn .gt_left {
+#ceordvscpr .gt_left {
   text-align: left;
 }
 
-#bheikkintn .gt_center {
+#ceordvscpr .gt_center {
   text-align: center;
 }
 
-#bheikkintn .gt_right {
+#ceordvscpr .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#bheikkintn .gt_font_normal {
+#ceordvscpr .gt_font_normal {
   font-weight: normal;
 }
 
-#bheikkintn .gt_font_bold {
+#ceordvscpr .gt_font_bold {
   font-weight: bold;
 }
 
-#bheikkintn .gt_font_italic {
+#ceordvscpr .gt_font_italic {
   font-style: italic;
 }
 
-#bheikkintn .gt_super {
+#ceordvscpr .gt_super {
   font-size: 65%;
 }
 
-#bheikkintn .gt_footnote_marks {
+#ceordvscpr .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#bheikkintn .gt_asterisk {
+#ceordvscpr .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#bheikkintn .gt_indent_1 {
+#ceordvscpr .gt_indent_1 {
   text-indent: 5px;
 }
 
-#bheikkintn .gt_indent_2 {
+#ceordvscpr .gt_indent_2 {
   text-indent: 10px;
 }
 
-#bheikkintn .gt_indent_3 {
+#ceordvscpr .gt_indent_3 {
   text-indent: 15px;
 }
 
-#bheikkintn .gt_indent_4 {
+#ceordvscpr .gt_indent_4 {
   text-indent: 20px;
 }
 
-#bheikkintn .gt_indent_5 {
+#ceordvscpr .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1032,7 +1205,7 @@ ggplot(data = survivor_poc_over_time, aes(x = season, y = freq, group = 1)) +
   geom_smooth(se = FALSE, color = &quot;seashell&quot;) + 
   ggtitle(&quot;Change in Proportion of POC Over Time &quot;) +
   xlab(&quot;Season&quot;) + ylab(&quot;Proportion of POC&quot;)</code></pre>
-<p><img src="eda_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="eda_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p><em>Note: Distinct person counts by POC status.</em></p>
 <pre class="r"><code>fill_color = brewer.pal(9, &quot;Purples&quot;)[5]
 survivor_gender_over_time = survivor_data_final %&gt;% 
@@ -1050,7 +1223,7 @@ ggplot(data = survivor_gender_over_time, aes(x = season, y = freq, group = 1)) +
   geom_smooth(se = FALSE, color = &quot;purple&quot;) + 
   ggtitle(&quot;Change in Proportion of Women Over Time&quot;) +
   xlab(&quot;Season&quot;) + ylab(&quot;Proportion of Women&quot;)</code></pre>
-<p><img src="eda_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="eda_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p><em>Note: Distinct person counts by gender.</em></p>
 </div>
 <div id="concentration-of-contestants-by-age-and-geography"
@@ -1069,7 +1242,7 @@ ggplot(survivor_data_final, aes(x = age_during_show)) +
   scale_y_continuous(labels = scales::percent) + 
   ggtitle(&quot;Distribution of Ages Across Contestant Occurrences&quot;) +
   xlab(&quot;Age (During Show)&quot;) + ylab(&quot;Count&quot;)</code></pre>
-<p><img src="eda_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="eda_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p><em>Note: Since contestants can re-appear across seasons at different
 ages, we rely on discrete records from <code>survivor_data_final</code>
 (i.e. contestant occurrences) as the unit of analysis for this plot in
@@ -1085,7 +1258,7 @@ plot_usmap(
   ) + 
   labs(title = &quot;US States&quot;, subtitle = &quot;Geographic Distribution of Contestants&quot;) +
   theme(legend.position = &quot;right&quot;)</code></pre>
-<p><img src="eda_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="eda_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p><em>Notes:</em> <em>(i) Seasons 2, 41, 42, and 43 have been removed
 from the exploratory analysis due to inconsistent number of days.</em>
 <em>(ii) Since contestants can re-appear across seasons with different
@@ -1093,6 +1266,22 @@ states of residence, we similarly rely on discrete records from
 <code>survivor_data_final</code> (i.e. contestant occurrences) as the
 unit of analysis for this plot in order to ensure comprehensiveness of
 location data.</em></p>
+</div>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p> <a href="https://github.com/doehm/survivoR"
+class="uri">https://github.com/doehm/survivoR</a><a href="#fnref1"
+class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p><a
+href="https://cran.r-project.org/web//packages/survivoR/survivoR.pdf"
+class="uri">https://cran.r-project.org/web//packages/survivoR/survivoR.pdf</a><a
+href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p><a
+href="https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf"
+class="uri">https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf</a><a
+href="#fnref3" class="footnote-back">↩︎</a></p></li>
+</ol>
 </div>
 
 
