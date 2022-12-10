@@ -27,12 +27,15 @@ survivor_data_final = read.csv("data/survivor_data_final.csv")
 
 ## Summary
 
+As a first step in our exploratory data analysis, we summarize frequencies of contestant occurrences by characteristics of interest, as well as report mean age and survival time across the population of contestant occurrences. 
+
 ```{r}
 survivor_data_final %>% 
-  select(gender, poc, personality_type_binary, age_during_show, days_survived) %>% 
+  select(gender, poc, personality_type_binary, age_during_show, days_survived, region) %>% 
   tbl_summary(type = list(gender ~ "categorical", 
                           poc ~ "categorical", 
                           personality_type_binary ~ "categorical", 
+                          region ~ "categorical",
                           age_during_show ~ "continuous", 
                           days_survived ~ "continuous"), 
               statistic = list(all_continuous() ~ "{mean} ({sd})"), 
@@ -40,12 +43,17 @@ survivor_data_final %>%
               label = list(c(gender) ~ "Gender",
                            c(poc) ~ "Race Identifier",
                            c(personality_type_binary) ~ "Personality Type",
+                           c(region) ~ "Region",
                            c(age_during_show) ~ "Age During Show (Years)",
                            c(days_survived) ~ "Survival Time on Show (Days)")) %>% 
   bold_labels()
 ```
 
-Note: N = 728 refers to the total count of records (i.e. contestant occurrences) in `survivor_data_final`; distinct persons may be listed in multiple records, across seasons and/or within seasons. 
+*Note: N = 728 refers to the total count of records (i.e. contestant occurrences) in `survivor_data_final`; distinct persons may be listed in multiple records, across seasons and/or within seasons.* 
+
+## Mean Days Survived, by Contestant Characteristics
+
+We proceed to provide an overview of distinct person counts, contestant occurrences, and mean survival times for contestant occurrences by personality type, POC status, gender, and region.
 
 ```{r, warning = FALSE, message = FALSE}
 ## Personality Type
@@ -66,7 +74,6 @@ survivor_data_final %>%
     na.omit()  %>%
   knitr::kable(digits = 1, col.names = c("POC Status", "Distinct Persons", "Contestant Occurrences", "Mean Days Survived"))
 
-
 ## Gender
 survivor_data_final %>% 
   group_by(gender) %>% 
@@ -77,7 +84,15 @@ survivor_data_final %>%
   knitr::kable(digits = 1, col.names = c("Gender", "Distinct Persons", "Contestant Occurrences", "Mean Days Survived"))
 ```
 
-Note: We report both distinct person counts and contestant occurrences by personality type, POC status, and gender.
+*Note: We report both distinct person counts and contestant occurrences by personality type, POC status, and gender.*
+
+
+
+Next, we run line plots to visualize changes in the relative proportions of distinct individual contestants by POC status and by gender over the course of successive Survivor seasons.
+
+The initial seasons included limited POC representation, with a noticeable spike observed in seasons in 13 and 14. Subsequent seasons have exhibited an increase in overall levels of POC participation, relative to the first twelve seasons of the show.
+
+The proportion of women contestants appearing on the show has remained broadly consistent, hovering either at, or in some cases slightly below, 50 percent across time; season 28 is an exception, with fewer than 40 percent comprised of women.
 
 ## POC and Gender Representation Across Seasons
 
@@ -100,7 +115,7 @@ ggplot(data = survivor_poc_over_time, aes(x = season, y = freq, group = 1)) +
   xlab("Season") + ylab("Proportion of POC")
 ```
 
-Note: Distinct person counts by POC status.
+*Note: Distinct person counts by POC status.*
 
 ```{r, warning = FALSE, message = FALSE}
 fill_color = brewer.pal(9, "Purples")[5]
@@ -121,7 +136,14 @@ ggplot(data = survivor_gender_over_time, aes(x = season, y = freq, group = 1)) +
   xlab("Season") + ylab("Proportion of Women")
 ```
 
-Note: Distinct person counts by gender.
+*Note: Distinct person counts by gender.*
+
+
+
+
+Finally, we run a histogram to display the distribution of ages for contestant occurrences, as well as a map showing the geographic concentration of contestant occurrences by state. The distribution of ages is right-skewed, with contestants in their early twenties through early thirties heavily represented on the show. The most popular state of origin for contestants is California, whereas Alaska and West Virginia, among other states, are not represented among contestants. 
+
+
 
 ## Concentration of Contestants by Age and Geography
 
@@ -134,7 +156,7 @@ ggplot(survivor_data_final, aes(x = age_during_show)) +
   xlab("Age (During Show)") + ylab("Count")
 ```
 
-Note: Since contestants can re-appear across seasons at different ages, we rely on discrete records from `survivor_data_final` (i.e. contestant occurrences) as the unit of analysis for this plot in order to ensure comprehensiveness of age data.
+*Note: Since contestants can re-appear across seasons at different ages, we rely on discrete records from `survivor_data_final` (i.e. contestant occurrences) as the unit of analysis for this plot in order to ensure comprehensiveness of age data.*
 
 ```{r, warning = FALSE, message = FALSE}
 survivor_state = survivor_data_final %>%
@@ -150,6 +172,6 @@ plot_usmap(
   theme(legend.position = "right")
 ```
 
-Notes: 
-(i) Seasons 2, 41, 42, and 43 have been removed from the exploratory analysis due to inconsistent number of days.
-(ii) Since contestants can re-appear across seasons with different states of residence, we similarly rely on discrete records from `survivor_data_final` (i.e. contestant occurrences) as the unit of analysis for this plot in order to ensure comprehensiveness of location data.
+*Notes:* 
+*(i) Seasons 2, 41, 42, and 43 have been removed from the exploratory analysis due to inconsistent number of days.*
+*(ii) Since contestants can re-appear across seasons with different states of residence, we similarly rely on discrete records from `survivor_data_final` (i.e. contestant occurrences) as the unit of analysis for this plot in order to ensure comprehensiveness of location data.*
