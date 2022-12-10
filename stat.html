@@ -11,7 +11,7 @@
 
 
 
-<title>Exploratory Data Analysis</title>
+<title>Statistical Analysis</title>
 
 <script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -384,21 +384,19 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Exploratory Data Analysis</h1>
+<h1 class="title toc-ignore">Statistical Analysis</h1>
 
 </div>
 
 
-<div id="statistical-analysis" class="section level2">
-<h2>Statistical Analysis</h2>
-<div id="methodology" class="section level3">
-<h3>Methodology</h3>
+<div id="methodology" class="section level2">
+<h2>Methodology</h2>
 <p>For our project, we interest using Survival Analysis. Suppose that
 there is a true survival time, T, as well as a true censoring time, C.
 The survival time represents the time at which the event of interest
-occurs: in this dataset, the time at which participant is voted out. The
-censoring time is the time at which the participant drop out of the game
-show or survived until the last day of the show.</p>
+occurs: in this dataset, the time (in days) at which participant is
+voted out. The censoring time is the time at which the participant drop
+out of the game show or survived until the last day of the show.</p>
 <p>We observed the Survival Time T and Censoring Time C. Suppose there
 is a random variable Y</p>
 <p><span class="math display">\[Y = min(T,C)\]</span></p>
@@ -407,14 +405,15 @@ is a random variable Y</p>
 survival time T. If censoring occurs before the event such as T <span
 class="math inline">\(&gt;\)</span> C, then we observe the censoring
 time. The status indicator as,</p>
-<p><span class="math display">\[\delta = \begin{cases}
-      &amp; 1 &amp;  T\leq C \\
-      &amp; 0 &amp; T &gt; C
-   \end{cases}\]</span></p>
+<p><span class="math display">\[\delta =  \left\{
+\begin{array}{ll}
+     1 &amp;  T\leq C \\
+     0 &amp; T &gt; C \\
+   \end{array}
+   \right. \]</span></p>
 <p>Thus, <span class="math inline">\(\delta\)</span> = 1 if we observe
 the true survival time, and <span class="math inline">\(\delta\)</span>
 = 0 if we observe the censoring.</p>
-</div>
 </div>
 <div id="result" class="section level2">
 <h2>Result</h2>
