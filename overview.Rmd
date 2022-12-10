@@ -33,9 +33,9 @@ We were inspired by a similar project of a smaller scale studying the effects of
 
 
 ### The intended final products
-- Several interactive dashboards to visualize castaway characteristic distributions
+- Exploratory data analysis, along with several interactive dashboards to visualize castaway characteristic distributions
 - Survival analysis (Kaplan-Meier curves) studying the effects of race, gender, age and personality type on length of stay
-- Cox-Proportional Hazards Model investigating the association between the survival time of Contestant and race, gender, age and personality type variables.
+- Cox proportional hazards model investigating the association between the survival time of contestant and race, gender, age and personality type variables.
 
 
 ### Data sources
@@ -56,14 +56,14 @@ In order to gather sufficient data, we plan to combine several data sets (includ
 
  In order to analyze the show *Survivor*, we used data sources from the `castaway_details` and `castaways` datasets^[ https://github.com/doehm/survivoR], as well as others, from the `survivoR` package.^[https://cran.r-project.org/web//packages/survivoR/survivoR.pdf] This fan-made package contains data from all seasons of the U.S. TV show *Survivor*. According to the authors of the package, “the data was sourced from Wikipedia and the Survivor Wiki. Other data, such as the tribe colours, was manually recorded and entered by myself and contributors.” As each dataset contained distinct information on the contestants for each season, it was necessary to use joins to combine datasets to produce a final dataset to be analyzed. This was performed using a full join on the contestants’ full names. It should be noted that a few contestants appear in multiple seasons, however we treated them as separate throughout most of our analysis for the purposes of getting an accurate picture of each season. Additionally, in order to standardize our results for the survival analysis and exploratory data analysis, we removed seasons 2, 41, 42, and 43 as the seasons contained data for a different number of days from the standard 39 days. As the original data contains information from several versions around the globe, it was integral to filter and only analyze data from the U.S. edition. In order to best model our covariates of interest, we then created a new personality type variable (extracting whether a person is an introvert or extrovert) and a POC indicator variable instead of individual races. We also used contestants' home states to code contestants into a region based on census regions and divisions of the United States.^[https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf] Furthermore, we determined that missing data was not an issue, as it occurred in low frequency and was not patterned in nature. The final dataset used in the analysis contains unique information for each castaway for each season, including the following key variables:
 
-- `version_season`: version and season number
-- `full_name`: contestant full name
-- `age_during_show` : age, in years
+- `version_season`: Version and season number
+- `full_name`: Contestant full name
+- `age_during_show` : Age, in years
 - `poc` : POC indicator, if known. Else, marked as White. 
 - `gender`: 2 levels: Female, Male. 
-- `personality_type_binary` : Extracted from the Myer-Briggs personality type of the castaway. 2 levels: Extrovert, Introvert.
+- `personality_type_binary` : Extracted from the Myers-Briggs personality type of the castaway. 2 levels: Extrovert, Introvert.
 - `days_survived`: Number of days survived in the show until elimination.
-- `region`: region in the U.S. where the contestant is from. We created this variable based on the `state` variable available in the dataset. 4 levels: West, Midwest, Northeast, South. Indicator variables for each of the 4 regions have also been created for analyses. 
+- `region`: Region in the U.S. where the contestant is from. We created this variable based on the `state` variable available in the dataset. 4 levels: West, Midwest, Northeast, South. Indicator variables for each of the 4 regions have also been created for analyses. 
 
 The data-warangling process as follows:
 ```{r, warning = FALSE, message = FALSE}
