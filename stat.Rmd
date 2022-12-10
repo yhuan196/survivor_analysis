@@ -39,13 +39,13 @@ $$\delta =  \left\{
 Thus, $\delta$ = 1 if we observe the true survival time, and $\delta$ = 0 if we observe the censoring.
 
 
-We use the Cox-propositional hazard model to evaluate the effect of several factors on survival time in Survivor Show. It allows us to examine how specified factors influence the rate of the event that we interested at a particular point in time. This rate is the hazard rate. Covariates are gender, poc, age, personality type, and region in this model. 
+We use the Cox-propositional hazard model to evaluate the effect of several factors on survival time in Survivor Show. It allows us to examine how specified factors influence the rate of the event that we interested at a particular point in time. This rate is the hazard rate. Covariates are age, gender, poc, personality type, and region in this model.
 The Cox model is expressed by the hazard function denoted by h(t). Briefly, the hazard function can be interpreted as the risk of voted out at time t. It can be estimated as follow:
 $$h(t) = h_0(t)\exp(x_1\beta_1 + x_2\beta_2 + x_3\beta_3 + x_4\beta_4 + x_4\beta_5)$$
 where, \ 
 
 * $t$ represents the survival time 
-* $h(t)$ is the hazard function determined by a set of participants' covariates $(x_1, x_2, x_3, x_4, x_5)$: $x_1$ is gender, $x_2$ is POC, $x_3$ is age during the show, $x_4$ is personality type, and $x_5$ is region 
+* $h(t)$ is the hazard function determined by a set of participants' covariates $(x_1, x_2, x_3, x_4, x_5)$: $x_1$ is age during the show, $x_2$ is gender, $x_3$ is POC, , $x_4$ is personality type, and $x_5$ is region 
 * the coefficients $(\beta1, \beta2, \beta3, \beta4, \beta5)$ measures the impact of covariates
 * $h_0(t)\geq 0$ is the baseline hazard function. It is the hazard function for an individual if all $(x_1, x_2, x_3, x_4, x_5)$ are equal to zero.
 
@@ -99,7 +99,7 @@ surv_model_cox1 <- coxph(data = survivor_data_final,
 # summary(surv_model_cox1)
 #Clean table for Cox PH
 tabcoxph(surv_model_cox1, 
-         var.labels = list(gender = "Gender", poc = "POC", age_during_show = "Age", personality_type_binary = "Personality Type",  region = "Region"), 
+         var.labels = list(age_during_show = "Age", gender = "Gender", poc = "POC",  personality_type_binary = "Personality Type",  region = "Region"), 
          decimals = 4)
 ```
 
@@ -117,7 +117,7 @@ As age increases in years, there is no difference in survival since the hazard r
 
 ## Estimation and Statistical Inference
 
-We use `ggsurvplot` function to draw the survival curves and calculate log-rank test p-value.
+We use Kaplan-Meier Curve to estimate the survival function for contestants. Apply `ggsurvplot` function to draw the survival curves and calculate log-rank test p-value. The following plots are the estimated probability of survival for contestants in each group. Based on the log rank test results, most of the log-rank test p-values are not statistically significant at $\alpha=0.05$. While we perform the log-rank test for contestants from Northeast and non-Northeast regions, the p-value = 0.5 which implies there is significant difference between Northeast and non-Northeast
 
 ### Kaplan-Meier plotter-personality
 ```{r}

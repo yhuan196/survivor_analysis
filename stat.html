@@ -420,7 +420,7 @@ the true survival time, and <span class="math inline">\(\delta\)</span>
 several factors on survival time in Survivor Show. It allows us to
 examine how specified factors influence the rate of the event that we
 interested at a particular point in time. This rate is the hazard rate.
-Covariates are gender, poc, age, personality type, and region in this
+Covariates are age, gender, poc, personality type, and region in this
 model. The Cox model is expressed by the hazard function denoted by
 h(t). Briefly, the hazard function can be interpreted as the risk of
 voted out at time t. It can be estimated as follow: <span
@@ -432,9 +432,9 @@ time</li>
 <li><span class="math inline">\(h(t)\)</span> is the hazard function
 determined by a set of participants’ covariates <span
 class="math inline">\((x_1, x_2, x_3, x_4, x_5)\)</span>: <span
-class="math inline">\(x_1\)</span> is gender, <span
-class="math inline">\(x_2\)</span> is POC, <span
-class="math inline">\(x_3\)</span> is age during the show, <span
+class="math inline">\(x_1\)</span> is age during the show, <span
+class="math inline">\(x_2\)</span> is gender, <span
+class="math inline">\(x_3\)</span> is POC, , <span
 class="math inline">\(x_4\)</span> is personality type, and <span
 class="math inline">\(x_5\)</span> is region</li>
 <li>the coefficients <span class="math inline">\((\beta1, \beta2,
@@ -495,7 +495,7 @@ surv_model_cox1 &lt;- coxph(data = survivor_data_final,
 # summary(surv_model_cox1)
 #Clean table for Cox PH
 tabcoxph(surv_model_cox1, 
-         var.labels = list(gender = &quot;Gender&quot;, poc = &quot;POC&quot;, age_during_show = &quot;Age&quot;, personality_type_binary = &quot;Personality Type&quot;,  region = &quot;Region&quot;), 
+         var.labels = list(age_during_show = &quot;Age&quot;, gender = &quot;Gender&quot;, poc = &quot;POC&quot;,  personality_type_binary = &quot;Personality Type&quot;,  region = &quot;Region&quot;), 
          decimals = 4)</code></pre>
 <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -752,8 +752,16 @@ the Midwest.</li>
 </div>
 <div id="estimation-and-statistical-inference" class="section level2">
 <h2>Estimation and Statistical Inference</h2>
-<p>We use <code>ggsurvplot</code> function to draw the survival curves
-and calculate log-rank test p-value.</p>
+<p>We use Kaplan-Meier Curve to estimate the survival function for
+contestants. Apply <code>ggsurvplot</code> function to draw the survival
+curves and calculate log-rank test p-value. The following plots are the
+estimated probability of survival for contestants in each group. Based
+on the log rank test results, most of the log-rank test p-values are not
+statistically significant at <span
+class="math inline">\(\alpha=0.05\)</span>. While we perform the
+log-rank test for contestants from Northeast and non-Northeast regions,
+the p-value = 0.5 which implies there is significant difference between
+Northeast and non-Northeast</p>
 <div id="kaplan-meier-plotter-personality" class="section level3">
 <h3>Kaplan-Meier plotter-personality</h3>
 <pre class="r"><code>surv_model_per &lt;- survfit(Surv(time, status)~ survivor_data_final$personality_type_binary)
