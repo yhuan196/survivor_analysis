@@ -393,14 +393,14 @@ div.tocify {
 
 <div id="methodology" class="section level2">
 <h2>Methodology</h2>
-<p>For our project, we are interested in using Survival Analysis.
+<p>For our project, we are interested in using survival analysis.
 Suppose that there is a true survival time, T, as well as a true
 censoring time, C. The survival time represents the time at which the
 event of interest occurs: in this dataset, the time (in days) at which a
 participant is voted out. The censoring time is the time at which a
 participant drops out of the game show or survived until the last day of
 the show.</p>
-<p>We observed the Survival Time T and Censoring Time C. Suppose there
+<p>We observed the survival time T and censoring time C. Suppose there
 is a random variable Y</p>
 <p><span class="math display">\[Y = min(T,C)\]</span></p>
 <p>In other words, if the event occurs before the censoring such that T
@@ -445,7 +445,9 @@ hazard function. It is the hazard function for an individual if all
 <span class="math inline">\((x_1, x_2, x_3, x_4, x_5)\)</span> are equal
 to zero.</li>
 </ul>
-<p>Connection with the Log-Rank Test</p>
+</div>
+<div id="connection-with-the-log-rank-test" class="section level2">
+<h2>Connection with the Log-Rank Test</h2>
 <p>Suppose we have a single predictor <span
 class="math inline">\((p=1)\)</span>, which we assume to be binary. We
 aim to determine whether there is a difference between the survival

@@ -22,9 +22,9 @@ library(kableExtra)
 ```
 
 ## Methodology
-For our project, we are interested in using Survival Analysis. Suppose that there is a true survival time, T, as well as a true censoring time, C. The survival time represents the time at which the event of interest occurs: in this dataset, the time (in days) at which a participant is voted out. The censoring time is the time at which a participant drops out of the game show or survived until the last day of the show.
+For our project, we are interested in using survival analysis. Suppose that there is a true survival time, T, as well as a true censoring time, C. The survival time represents the time at which the event of interest occurs: in this dataset, the time (in days) at which a participant is voted out. The censoring time is the time at which a participant drops out of the game show or survived until the last day of the show.
 
-We observed the Survival Time T and Censoring Time C. Suppose there is a random variable Y
+We observed the survival time T and censoring time C. Suppose there is a random variable Y
 
 $$Y = min(T,C)$$
 
@@ -51,7 +51,7 @@ where, \
 * $h_0(t)\geq 0$ is the baseline hazard function. It is the hazard function for an individual if all $(x_1, x_2, x_3, x_4, x_5)$ are equal to zero.
 
 
-Connection with the Log-Rank Test
+## Connection with the Log-Rank Test
 
 Suppose we have a single predictor $(p=1)$, which we assume to be binary. We aim to determine whether there is a difference between the survival times of the observations in the group. For instance, we consider a test to compare difference survival times between females and males.
 The null hypothesis is that the two groups have identical hazard functions:
