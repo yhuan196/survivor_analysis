@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Statistical Analysis</title>
+
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="overview.html">Overview</a>
+</li>
+<li>
+  <a href="eda.html">Exploratory Data Analysis</a>
+</li>
+<li>
+  <a href="stat.html">Statistical Analysis</a>
+</li>
+<li>
+  <a href="https://shouldi.shinyapps.io/survivor_shiny/">Shiny</a>
+</li>
+<li>
+  <a href="project_report.html">Project Report</a>
+</li>
+<li>
+  <a href="youtube.html">
+    <span class="&lt;i class=&quot;fa fa &lt;i class=&quot;fa fa-youtube-play fa-lg&quot;&gt;&lt;/i&gt; fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="mailto:&lt;yh3554@cumc.columbia.edu&gt;">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="http://github.com/enp2116/p8105_final_project_enp_si_fir_yh_jc/">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Statistical Analysis</h1>
+
+</div>
+
+
+<div id="methodology" class="section level2">
+<h2>Methodology</h2>
+<p>For our project, we interest using Survival Analysis. Suppose that
+there is a true survival time, T, as well as a true censoring time, C.
+The survival time represents the time at which the event of interest
+occurs: in this dataset, the time (in days) at which participant is
+voted out. The censoring time is the time at which the participant drop
+out of the game show or survived until the last day of the show.</p>
+<p>We observed the Survival Time T and Censoring Time C. Suppose there
+is a random variable Y</p>
+<p><span class="math display">\[Y = min(T,C)\]</span></p>
+<p>In other words, if the event occurs before the censoring such that T
+<span class="math inline">\(&lt;\)</span> C, then we observed the true
+survival time T. If censoring occurs before the event such as T <span
+class="math inline">\(&gt;\)</span> C, then we observe the censoring
+time. The status indicator as,</p>
+<p><span class="math display">\[\delta =  \left\{
+\begin{array}{ll}
+     1 &amp;  T\leq C \\
+     0 &amp; T &gt; C \\
+   \end{array}
+   \right. \]</span></p>
+<p>Thus, <span class="math inline">\(\delta\)</span> = 1 if we observe
+the true survival time, and <span class="math inline">\(\delta\)</span>
+= 0 if we observe the censoring.</p>
+<p>We use the Cox-propositional hazard model to evaluate the effect of
+several factors on survival time in Survivor Show. It allows us to
+examine how specified factors influence the rate of the event that we
+interested at a particular point in time. This rate is the hazard rate.
+Covariates are age, gender, poc, personality type, and region in this
+model. The Cox model is expressed by the hazard function denoted by
+h(t). Briefly, the hazard function can be interpreted as the risk of
+voted out at time t. It can be estimated as follow: <span
+class="math display">\[h(t) = h_0(t)\exp(x_1\beta_1 + x_2\beta_2 +
+x_3\beta_3 + x_4\beta_4 + x_4\beta_5)\]</span> where,  </p>
+<ul>
+<li><span class="math inline">\(t\)</span> represents the survival
+time</li>
+<li><span class="math inline">\(h(t)\)</span> is the hazard function
+determined by a set of participants’ covariates <span
+class="math inline">\((x_1, x_2, x_3, x_4, x_5)\)</span>: <span
+class="math inline">\(x_1\)</span> is age during the show, <span
+class="math inline">\(x_2\)</span> is gender, <span
+class="math inline">\(x_3\)</span> is POC, , <span
+class="math inline">\(x_4\)</span> is personality type, and <span
+class="math inline">\(x_5\)</span> is region</li>
+<li>the coefficients <span class="math inline">\((\beta1, \beta2,
+\beta3, \beta4, \beta5)\)</span> measures the impact of covariates</li>
+<li><span class="math inline">\(h_0(t)\geq 0\)</span> is the baseline
+hazard function. It is the hazard function for an individual if all
+<span class="math inline">\((x_1, x_2, x_3, x_4, x_5)\)</span> are equal
+to zero.</li>
+</ul>
+<p>Connection with the Log-Rank Test</p>
+<p>Suppose we have a single predictor <span
+class="math inline">\((p=1)\)</span>, which we assume to be binary. To
+determine whether there is a difference between the survival times of
+the obeservations in the group. For instance, we consider test to
+compare difference survival times between female and male. The null
+hypothesis is that the two groups have identical hazard functions, <span
+class="math display">\[H_0: h_1(t) = h_2(t)\]</span></p>
+</div>
+<div id="result" class="section level2">
+<h2>Result</h2>
+<pre class="r"><code>## reading in data
+survivor_data_final = 
+  read.csv(&quot;data/survivor_data_final.csv&quot;)
+## Create status and time variable
+# filtering of seasons moved to data wrangling file
+# replaced all survivor_final with survivor_data_final since filtering was moved to use for EDA
+status &lt;- c()
+time &lt;- c()
+for (i in 1:nrow(survivor_data_final))
+  {
+  if (survivor_data_final[i,17] == &quot;Quit&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  }
+  else if (survivor_data_final[i,17] == &quot;Sole Survivor&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  } 
+  else if (survivor_data_final[i,17] == &quot;Runner-up&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  } else if (survivor_data_final[i,17] == &quot;Co-runner-up&quot;) {
+    status[i] &lt;- 0
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  }
+  else {
+    status[i] &lt;- 1
+    time[i] &lt;- survivor_data_final$days_survived[i]
+  }
+}
+survivor_data_final[,25] &lt;- status
+survivor_data_final[,26] &lt;- time
+colnames(survivor_data_final)[25] &lt;- &quot;status&quot;
+colnames(survivor_data_final)[26] &lt;- &quot;time&quot;
+
+surv_model_cox1 &lt;- coxph(data = survivor_data_final,
+  Surv(time, status) ~ age_during_show + gender + poc + personality_type_binary + region)
+# summary(surv_model_cox1)
+# Clean table for Cox PH
+tabcoxph(surv_model_cox1,
+         var.labels = list(age_during_show = &quot;Age&quot;, gender = &quot;Gender&quot;, poc = &quot;POC&quot;,  personality_type_binary = &quot;Personality Type&quot;,  region = &quot;Region&quot;),
+         decimals = 2)</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Variable
+</th>
+<th style="text-align:left;">
+Beta (SE)
+</th>
+<th style="text-align:left;">
+HR (95% CI)
+</th>
+<th style="text-align:left;">
+P
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:left;">
+-0.00 (0.00)
+</td>
+<td style="text-align:left;">
+1.00 (0.99, 1.01)
+</td>
+<td style="text-align:left;">
+0.95
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gender
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Female (ref)
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Male
+</td>
+<td style="text-align:left;">
+-0.05 (0.08)
+</td>
+<td style="text-align:left;">
+0.95 (0.81, 1.11)
+</td>
+<td style="text-align:left;">
+0.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+POC
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     POC (ref)
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     White
+</td>
+<td style="text-align:left;">
+-0.11 (0.09)
+</td>
+<td style="text-align:left;">
+0.89 (0.75, 1.07)
+</td>
+<td style="text-align:left;">
+0.21
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Personality Type
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Extrovert (ref)
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Introvert
+</td>
+<td style="text-align:left;">
+0.07 (0.08)
+</td>
+<td style="text-align:left;">
+1.07 (0.91, 1.25)
+</td>
+<td style="text-align:left;">
+0.42
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Region
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Midwest (ref)
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+<td style="text-align:left;">
+–
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     Northeast
+</td>
+<td style="text-align:left;">
+-0.00 (0.15)
+</td>
+<td style="text-align:left;">
+1.00 (0.75, 1.33)
+</td>
+<td style="text-align:left;">
+0.99
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     South
+</td>
+<td style="text-align:left;">
+0.26 (0.14)
+</td>
+<td style="text-align:left;">
+1.30 (1.00, 1.70)
+</td>
+<td style="text-align:left;">
+0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+     West
+</td>
+<td style="text-align:left;">
+0.17 (0.13)
+</td>
+<td style="text-align:left;">
+1.18 (0.91, 1.53)
+</td>
+<td style="text-align:left;">
+0.20
+</td>
+</tr>
+</tbody>
+</table>
+<div id="hr-interpretations" class="section level4">
+<h4>HR interpretations:</h4>
+<ul>
+<li>As age increases in years, there is no difference in survival since
+the hazard ratio is 1. We are 95% confident that the HR falls between
+0.99 to 1.01. However, the HR is not statistically significant.<br />
+<br />
+</li>
+<li>For gender, the HR value of 0.95 suggests that on average, under an
+exponential distribution, the survival time for male contestants is
+approximately at 5% lower risk of being voted out compared to female
+contestants (the reference category). We are 95% confident that the HR
+falls between 0.82 and 1.12. However, the HR is not statistically
+significant.<br />
+<br />
+</li>
+<li>For POC, the HR value of 0.89 would suggest that on average, under
+an exponential distribution, the survival time for White contestants is
+at 11% lower risk of being voted out compare to POC contestants (the
+reference category). We are 95% confident that the HR falls between 0.75
+and 1.06. However, the HR is not statistically significant.<br />
+<br />
+</li>
+<li>For personality type, the HR value of 1.07 would suggest that on
+average, under an exponential distribution, the survival time for
+introvert contestants is shorter compared to extrovert contestants (the
+reference category). We are 95% confident that the HR falls between 0.91
+- 1.25. However, the HR is not statistically significant.<br />
+<br />
+</li>
+<li>For region, Midwest is the reference category. However, most of
+these hazard ratios are not statistically significant, p-value &gt; 0.05
+(except South).
+<ul>
+<li>The HR value of 1 for Northeast suggests that the survival time for
+contestants from the NE is longer compared to contestants from the
+Midwest.<br />
+</li>
+<li>The HR value of 1.3 for the South suggests that the survival time
+for contestants from the South is shorter compared to contestants from
+the Midwest.<br />
+</li>
+<li>The HR value of 1.18 for the West suggests that the survival time
+for contestants from the West is shorter compared to contestants from
+the Midwest.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="estimation-and-statistical-inference" class="section level2">
+<h2>Estimation and Statistical Inference</h2>
+<p>We use Kaplan-Meier Curve to estimate the survival function for
+contestants. Apply <code>ggsurvplot</code> function to draw the survival
+curves and calculate log-rank test p-value. The following plots are the
+estimated probability of survival for contestants in each group. Based
+on the log rank test results, most of the log-rank test p-values are not
+statistically significant at <span
+class="math inline">\(\alpha=0.05\)</span>. While we perform the
+log-rank test for contestants from Northeast and non-Northeast regions,
+the p-value = 0.5 which implies there is significant difference between
+Northeast and non-Northeast.</p>
+<div id="kaplan-meier-plotter-personality" class="section level3">
+<h3>Kaplan-Meier plotter-personality</h3>
+<pre class="r"><code>surv_model_per &lt;- survfit(Surv(time, status)~ survivor_data_final$personality_type_binary)
+ggsurvplot(
+  surv_model_per,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  palette =
+    c(&quot;#E7B800&quot;, &quot;#2E9FDF&quot;),# custom color palettes
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value show log-rank test
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Extrovert&quot;, &quot;Introvert&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>#basic graph
+# plot(surv_model_per, xlab = &quot;Days&quot;,
+#      ylab = &quot;Estimated Probability of Survival&quot;, col = c(2,4))</code></pre>
+</div>
+<div id="kaplan-meier-plotter-white-vs-non-white"
+class="section level3">
+<h3>Kaplan-Meier plotter-White vs Non-White</h3>
+<pre class="r"><code>surv_model_poc &lt;- survfit(Surv(time, status)~ survivor_data_final$poc)
+ggsurvplot(
+  surv_model_poc,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;POC&quot;, &quot;White&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-gender" class="section level3">
+<h3>Kaplan-Meier plotter-gender</h3>
+<pre class="r"><code>surv_model_sex &lt;- survfit(Surv(time, status)~ survivor_data_final$gender)
+ggsurvplot(
+  surv_model_sex,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;female&quot;, &quot;male&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-region" class="section level3">
+<h3>Kaplan-Meier plotter-Region</h3>
+<pre class="r"><code>surv_model_Region &lt;- survfit(Surv(time, status)~ survivor_data_final$region)
+ggsurvplot(
+  surv_model_Region,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Midwest&quot;, &quot;Northeast&quot;, &quot;South&quot;, &quot;West&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-northeast" class="section level3">
+<h3>Kaplan-Meier plotter-Northeast</h3>
+<pre class="r"><code>surv_model_NE &lt;- survfit(Surv(time, status)~ survivor_data_final$NE)
+ggsurvplot(
+  surv_model_NE,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Non-Northeast&quot;, &quot;Northeast&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-south" class="section level3">
+<h3>Kaplan-Meier plotter-South</h3>
+<pre class="r"><code>surv_model_South &lt;- survfit(Surv(time, status)~ survivor_data_final$South)
+ggsurvplot(
+  surv_model_South,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Non-South&quot;, &quot;South&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-west" class="section level3">
+<h3>Kaplan-Meier plotter-West</h3>
+<pre class="r"><code>surv_model_West &lt;- survfit(Surv(time, status)~ survivor_data_final$West)
+ggsurvplot(
+  surv_model_West,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Non-West&quot;, &quot;West&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
+<div id="kaplan-meier-plotter-midwest" class="section level3">
+<h3>Kaplan-Meier plotter-Midwest</h3>
+<pre class="r"><code>surv_model_Midwest &lt;- survfit(Surv(time, status)~ survivor_data_final$Midwest)
+ggsurvplot(
+  surv_model_Midwest,
+  data = survivor_data_final,
+  size = 1,                 # change line size
+  conf.int = FALSE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = &quot;strata&quot;,# Risk table color by groups
+  legend.labs =
+    c(&quot;Non-Midwest&quot;, &quot;Midwest&quot;),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)</code></pre>
+<p><img src="stat_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

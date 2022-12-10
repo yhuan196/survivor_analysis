@@ -4,15 +4,11 @@ navbar:
   title: "Home"
   right:
     - text: "Overview"
-      href: proposal.html
-    - text: "Data Pre-Processing"
-      href: intro_page.html
+      href: overview.html
     - text: "Exploratory Data Analysis"
       href: eda.html
     - text: "Statistical Analysis"
       href: stat.html    
-    - text: "Dashboard"
-      href: dashboard.html
     - text: "Shiny"
       href: https://shouldi.shinyapps.io/survivor_shiny/
     - text: "Project Report"

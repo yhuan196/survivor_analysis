@@ -1,0 +1,186 @@
+---
+title: "Overview"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(survivoR)
+library(tidyverse)
+library(stringr)
+library(dplyr)
+```
+
+## Plan
+### Participants
+* Emily Potts (enp2116)
+* Yi Huang (yh3554)
+* Shodai Inose (si2426)
+* Farizah Rob (fir2103)
+* John Cheng (jc5635)
+
+### The tentative project title
+Survivor(al) Analysis: Impacts of Demographics on Game Show Contestant Survival
+
+### The motivation for this project
+We are curious about the implications of self-identified race and personality type to game show survival, as entertainment culture is deeply intertwined with societal biases. We are specifically looking at the show Survivor.
+We were inspired by a similar project of a smaller scale studying the effects of race and gender in Masterchef Junior survival rates.^[https://www.causeweb.org/usproc/sites/default/files/usresp/2018-2/Whip%20It%20Like%20a%20WoMan%20Survival%20Analysis%20of%20Minority%20Contestants%20on%20MasterChef%20Junior.pdf]
+
+
+### The intended final products
+- Exploratory data analysis, along with several interactive dashboards to visualize castaway characteristic distributions
+- Survival analysis (Kaplan-Meier curves) studying the effects of race, gender, age and personality type on length of stay
+- Cox proportional hazards model investigating the association between the survival time of contestant and race, gender, age and personality type variables.
+
+
+### Data sources
+Our anticipated data sources are the `castaway_details` and `castaways` datasets^[https://github.com/doehm/survivoR] from the `survivoR` package,^[https://cran.r-project.org/web//packages/survivoR/survivoR.pdf] which has data from all seasons of the U.S. T.V. show Survivor. \
+- Unique information for each castaway includes gender, date of birth, occupation, race, ethnicity, and personality data from `castaway_details`.\
+- Season and demographic information about each castaway from `castaways`.
+
+### The planned analyses, visualizations, and coding challenges 
+In order to gather sufficient data, we plan to combine several data sets (including `castaway_details` and `castaways`) and tidy them if necessary. Some of our variables of interest have many categories, which could lead to loss of generality. To combat this, we may categorize our variables of interest differently, such as extracting whether a person is an introvert or extrovert from their personality type, or using a POC indicator variable instead of individual races. We will also need to figure out how to standardize between seasons as the seasons have varying numbers of contestants. Additionally, deciding how to deal with NAs for particular variables in earlier seasons may pose a coding challenge. We plan to perform EDA to visualize the distributions of our variables of interest, including POC, race, ethnicity, gender, personality type, and age. As our main analysis, we plan on doing survival analysis by demographic groups, using the length of stay of the contestants on the show as our outcome of interest.
+
+### The planned timeline
+- Week of November 13: Merge datasets, clean and tidy the data, create any new variables that might be needed for analysis. Start EDA - create visualizations for the distributions and frequencies of variables of interest. 
+- Week of November 21: Continue working on EDA, improve visualizations, create interactive plots and possibly a flex dashboard. Start working on survival analysis code. 
+- Week of November 28: Work on writing up the report together and create the website
+- Week of December 4: Finalize the report, create a screencast, and include any additional analyses. 
+
+## Data Cleaning
+
+ In order to analyze the show *Survivor*, we used data sources from the `castaway_details` and `castaways` datasets^[ https://github.com/doehm/survivoR], as well as others, from the `survivoR` package.^[https://cran.r-project.org/web//packages/survivoR/survivoR.pdf] This fan-made package contains data from all seasons of the U.S. TV show *Survivor*. According to the authors of the package, “the data was sourced from Wikipedia and the Survivor Wiki. Other data, such as the tribe colours, was manually recorded and entered by myself and contributors.” As each dataset contained distinct information on the contestants for each season, it was necessary to use joins to combine datasets to produce a final dataset to be analyzed. This was performed using a full join on the contestants’ full names. It should be noted that a few contestants appear in multiple seasons, however we treated them as separate throughout most of our analysis for the purposes of getting an accurate picture of each season. Additionally, in order to standardize our results for the survival analysis and exploratory data analysis, we removed seasons 2, 41, 42, and 43 as the seasons contained data for a different number of days from the standard 39 days. As the original data contains information from several versions around the globe, it was integral to filter and only analyze data from the U.S. edition. In order to best model our covariates of interest, we then created a new personality type variable (extracting whether a person is an introvert or extrovert) and a POC indicator variable instead of individual races. We also used contestants' home states to code contestants into a region based on census regions and divisions of the United States.^[https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf] Furthermore, we determined that missing data was not an issue, as it occurred in low frequency and was not patterned in nature. The final dataset used in the analysis contains unique information for each castaway for each season, including the following key variables:
+
+- `version_season`: Version and season number
+- `full_name`: Contestant full name
+- `age_during_show` : Age, in years
+- `poc` : POC indicator, if known. Else, marked as White. 
+- `gender`: 2 levels: Female, Male. 
+- `personality_type_binary` : Extracted from the Myers-Briggs personality type of the castaway. 2 levels: Extrovert, Introvert.
+- `days_survived`: Number of days survived in the show until elimination.
+- `region`: Region in the U.S. where the contestant is from. We created this variable based on the `state` variable available in the dataset. 4 levels: West, Midwest, Northeast, South. Indicator variables for each of the 4 regions have also been created for analyses. 
+
+The data-wrangling process as follows:
+```{r, warning = FALSE, message = FALSE}
+
+## cleaning Castaway Details dataset: filtering-out non-US seasons, creating personality type variable
+castaway_details_us = castaway_details %>% 
+  filter(str_detect(castaway_id, '^US')) %>%
+  mutate(
+    personality_type_binary = ifelse(
+      str_detect(personality_type, '^E'), "Extrovert", "Introvert")) %>%
+  select(-c(castaway_id, castaway, personality_type))
+
+## Castaways dataset: filtering-out non-US seasons, renaming variables
+castaways_us = castaways %>% filter(version == "US") %>%
+  select(-c(version, season_name, season, castaway_id, castaway, jury_status, original_tribe)) %>%
+  rename(age_during_show = age, days_survived = day)
+
+## joining datasets
+survivor_data_final = full_join(castaway_details_us, castaways_us, by = "full_name")
+
+# check for multiple unique names per season
+contestant_count_unique_rec = survivor_data_final %>%
+  group_by(version_season, full_name) %>%
+  summarise(count = n()) %>%
+  mutate(num = row_number())
+
+## summarizing the number of contestants per season & adding to joined dataset
+contestant_count_df = survivor_data_final %>%
+  group_by(version_season) %>%
+  summarise(contestant_count = n_distinct(full_name))
+
+survivor_data_final = full_join(survivor_data_final, contestant_count_df, by = "version_season")
+
+## reordering variables, create new variable ethnicity, fix personality type variable
+survivor_data_final = survivor_data_final %>%
+  select(c("version_season", "full_name", "age_during_show", "race", "poc", "date_of_birth", "date_of_death", "occupation", "gender", "ethnicity", "personality_type_binary", "episode", "days_survived", "order", "contestant_count", "result", "city", "state")) %>% 
+    mutate(ethnicity = ifelse(
+      str_detect(poc, 'White'), survivor_data_final$poc, survivor_data_final$race)) %>% 
+  arrange(version_season) %>%
+  mutate(personality_type_binary = as.factor(personality_type_binary))
+
+## adding region variable
+survivor_data_final = survivor_data_final %>%
+mutate(region = 
+    ifelse(
+    state == "Connecticut" 
+    | state == "Maine" 
+    | state == "Massachusetts" 
+    | state == "New Hampshire"
+    | state == "Rhode Island"
+    | state == "Vermont" 
+    | state == "New Jersey" 
+    | state == "New York" 
+    | state == "Pennsylvania", 
+    "Northeast",
+    
+    ifelse(
+    state == "Delaware" 
+    | state == "District of Columbia" 
+    | state == "Florida" 
+    | state == "Georgia" 
+    | state == "Maryland" 
+    | state == "North Carolina"
+    | state == "South Carolina" 
+    | state == "Virginia"
+    | state == "West Virginia" 
+    | state == "Alabama"
+    | state == "Kentucky" 
+    | state == "Mississippi"
+    | state == "Tennessee" 
+    | state == "Arkansas" 
+    | state == "Louisiana" 
+    | state == "Oklahoma" 
+    | state == "Texas", 
+      "South", 
+      
+    ifelse(
+      state == "Arizona"
+      | state == "Colorado"
+      | state == "Idaho"
+      | state == "New Mexico"
+      | state == "Montana"
+      | state == "Utah" 
+      | state == " Nevada"
+      | state == "Wyoming"
+      | state == "Alaska"
+      | state == "California"
+      | state == "Hawaii"
+      | state == "Oregon"
+      | state == "Washington"
+    ,  "West", "Midwest"
+    )))
+  ) %>%
+  mutate(NE = ifelse(region == "Northeast", 1, 0)) %>%
+  mutate(South = ifelse(region == "South", 1, 0)) %>%
+  mutate(West = ifelse(region == "West", 1, 0)) %>%
+  mutate(Midwest = ifelse(region == "Midwest", 1, 0))
+
+survivor_data_final_including_2_41_42_43 = survivor_data_final
+
+write.csv(survivor_data_final_including_2_41_42_43, file = "./data/survivor_data_final_including_2_41_42_43.csv")
+
+# preparing data for survival analysis
+
+## season 41 and 42, the longest survival time is 26 days, exclude these seasons
+## season 2, the longest survival time is 42 days, exclude this season
+## season 43 is incomplete, exclude this season
+
+survivor_data_final = survivor_data_final %>%
+  filter(!(version_season %in% c("US02", "US41", "US42", "US43")))
+
+## calculating percent NAs for all variables
+survivor_data_final %>% summarise_all(list(name = ~sum(is.na(.))/length(.)))
+```
+
+
+As a supplemental analysis, we also used the `confessionals` data from the same  `survivoR` package to visualize the number of confessionals each contestant received. This data looked at all seasons as it was unrelated to the survival analysis and consistency in the datasets was not necessary. Nevertheless, this data also only looked at the U.S. edition of the show.
+
+
+

@@ -38250,7 +38250,7 @@ a.u-link.u-text-hover-grey-90:hover {
 
 /*end-variables sitestylecss*/
 .u-header .u-sheet-1 {
-  min-height: 70px;
+  min-height: 76px;
 }
 
 .u-header .u-social-icons-1 {
@@ -38258,7 +38258,7 @@ a.u-link.u-text-hover-grey-90:hover {
   min-height: 16px;
   width: 118px;
   min-width: 76px;
-  margin: 20px 10px 0 auto;
+  margin: 23px 11px 0 auto;
 }
 
 .u-header .u-icon-1 {
@@ -38274,12 +38274,12 @@ a.u-link.u-text-hover-grey-90:hover {
 }
 
 .u-header .u-menu-1 {
-  margin: -50px auto 0 10px;
+  margin: -51px auto 2px 109px;
 }
 
 .u-header .u-nav-1 {
   font-weight: 500;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
 }
 
 .u-header .u-nav-2 {

@@ -11,7 +11,7 @@
 
 
 
-<title>Proposal</title>
+<title>Overview</title>
 
 <script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -335,10 +335,7 @@ div.tocify {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="proposal.html">Overview</a>
-</li>
-<li>
-  <a href="intro_page.html">Data Pre-Processing</a>
+  <a href="overview.html">Overview</a>
 </li>
 <li>
   <a href="eda.html">Exploratory Data Analysis</a>
@@ -347,7 +344,7 @@ div.tocify {
   <a href="stat.html">Statistical Analysis</a>
 </li>
 <li>
-  <a href="dashboard.html">Dashboard</a>
+  <a href="https://shouldi.shinyapps.io/survivor_shiny/">Shiny</a>
 </li>
 <li>
   <a href="project_report.html">Project Report</a>
@@ -387,11 +384,13 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Proposal</h1>
+<h1 class="title toc-ignore">Overview</h1>
 
 </div>
 
 
+<div id="plan" class="section level2">
+<h2>Plan</h2>
 <div id="participants" class="section level3">
 <h3>Participants</h3>
 <ul>
@@ -420,12 +419,12 @@ id="fnref1"><sup>1</sup></a></p>
 <div id="the-intended-final-products" class="section level3">
 <h3>The intended final products</h3>
 <ul>
-<li>Several interactive dashboards to visualize castaway characteristic
-distributions</li>
+<li>Exploratory data analysis, along with several interactive dashboards
+to visualize castaway characteristic distributions</li>
 <li>Survival analysis (Kaplan-Meier curves) studying the effects of
 race, gender, age and personality type on length of stay</li>
-<li>Cox-Proportional Hazards Model investigating the association between
-the survival time of Contestant and race, gender, age and personality
+<li>Cox proportional hazards model investigating the association between
+the survival time of contestant and race, gender, age and personality
 type variables.</li>
 </ul>
 </div>
@@ -478,6 +477,188 @@ create the website</li>
 include any additional analyses.</li>
 </ul>
 </div>
+</div>
+<div id="data-cleaning" class="section level2">
+<h2>Data Cleaning</h2>
+<p>In order to analyze the show <em>Survivor</em>, we used data sources
+from the <code>castaway_details</code> and <code>castaways</code>
+datasets<a href="#fn4" class="footnote-ref"
+id="fnref4"><sup>4</sup></a>, as well as others, from the
+<code>survivoR</code> package.<a href="#fn5" class="footnote-ref"
+id="fnref5"><sup>5</sup></a> This fan-made package contains data from
+all seasons of the U.S. TV show <em>Survivor</em>. According to the
+authors of the package, “the data was sourced from Wikipedia and the
+Survivor Wiki. Other data, such as the tribe colours, was manually
+recorded and entered by myself and contributors.” As each dataset
+contained distinct information on the contestants for each season, it
+was necessary to use joins to combine datasets to produce a final
+dataset to be analyzed. This was performed using a full join on the
+contestants’ full names. It should be noted that a few contestants
+appear in multiple seasons, however we treated them as separate
+throughout most of our analysis for the purposes of getting an accurate
+picture of each season. Additionally, in order to standardize our
+results for the survival analysis and exploratory data analysis, we
+removed seasons 2, 41, 42, and 43 as the seasons contained data for a
+different number of days from the standard 39 days. As the original data
+contains information from several versions around the globe, it was
+integral to filter and only analyze data from the U.S. edition. In order
+to best model our covariates of interest, we then created a new
+personality type variable (extracting whether a person is an introvert
+or extrovert) and a POC indicator variable instead of individual races.
+We also used contestants’ home states to code contestants into a region
+based on census regions and divisions of the United States.<a
+href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>
+Furthermore, we determined that missing data was not an issue, as it
+occurred in low frequency and was not patterned in nature. The final
+dataset used in the analysis contains unique information for each
+castaway for each season, including the following key variables:</p>
+<ul>
+<li><code>version_season</code>: Version and season number</li>
+<li><code>full_name</code>: Contestant full name</li>
+<li><code>age_during_show</code> : Age, in years</li>
+<li><code>poc</code> : POC indicator, if known. Else, marked as
+White.</li>
+<li><code>gender</code>: 2 levels: Female, Male.</li>
+<li><code>personality_type_binary</code> : Extracted from the
+Myers-Briggs personality type of the castaway. 2 levels: Extrovert,
+Introvert.</li>
+<li><code>days_survived</code>: Number of days survived in the show
+until elimination.</li>
+<li><code>region</code>: Region in the U.S. where the contestant is
+from. We created this variable based on the <code>state</code> variable
+available in the dataset. 4 levels: West, Midwest, Northeast, South.
+Indicator variables for each of the 4 regions have also been created for
+analyses.</li>
+</ul>
+<p>The data-wrangling process as follows:</p>
+<pre class="r"><code>## cleaning Castaway Details dataset: filtering-out non-US seasons, creating personality type variable
+castaway_details_us = castaway_details %&gt;% 
+  filter(str_detect(castaway_id, &#39;^US&#39;)) %&gt;%
+  mutate(
+    personality_type_binary = ifelse(
+      str_detect(personality_type, &#39;^E&#39;), &quot;Extrovert&quot;, &quot;Introvert&quot;)) %&gt;%
+  select(-c(castaway_id, castaway, personality_type))
+
+## Castaways dataset: filtering-out non-US seasons, renaming variables
+castaways_us = castaways %&gt;% filter(version == &quot;US&quot;) %&gt;%
+  select(-c(version, season_name, season, castaway_id, castaway, jury_status, original_tribe)) %&gt;%
+  rename(age_during_show = age, days_survived = day)
+
+## joining datasets
+survivor_data_final = full_join(castaway_details_us, castaways_us, by = &quot;full_name&quot;)
+
+# check for multiple unique names per season
+contestant_count_unique_rec = survivor_data_final %&gt;%
+  group_by(version_season, full_name) %&gt;%
+  summarise(count = n()) %&gt;%
+  mutate(num = row_number())
+
+## summarizing the number of contestants per season &amp; adding to joined dataset
+contestant_count_df = survivor_data_final %&gt;%
+  group_by(version_season) %&gt;%
+  summarise(contestant_count = n_distinct(full_name))
+
+survivor_data_final = full_join(survivor_data_final, contestant_count_df, by = &quot;version_season&quot;)
+
+## reordering variables, create new variable ethnicity, fix personality type variable
+survivor_data_final = survivor_data_final %&gt;%
+  select(c(&quot;version_season&quot;, &quot;full_name&quot;, &quot;age_during_show&quot;, &quot;race&quot;, &quot;poc&quot;, &quot;date_of_birth&quot;, &quot;date_of_death&quot;, &quot;occupation&quot;, &quot;gender&quot;, &quot;ethnicity&quot;, &quot;personality_type_binary&quot;, &quot;episode&quot;, &quot;days_survived&quot;, &quot;order&quot;, &quot;contestant_count&quot;, &quot;result&quot;, &quot;city&quot;, &quot;state&quot;)) %&gt;% 
+    mutate(ethnicity = ifelse(
+      str_detect(poc, &#39;White&#39;), survivor_data_final$poc, survivor_data_final$race)) %&gt;% 
+  arrange(version_season) %&gt;%
+  mutate(personality_type_binary = as.factor(personality_type_binary))
+
+## adding region variable
+survivor_data_final = survivor_data_final %&gt;%
+mutate(region = 
+    ifelse(
+    state == &quot;Connecticut&quot; 
+    | state == &quot;Maine&quot; 
+    | state == &quot;Massachusetts&quot; 
+    | state == &quot;New Hampshire&quot;
+    | state == &quot;Rhode Island&quot;
+    | state == &quot;Vermont&quot; 
+    | state == &quot;New Jersey&quot; 
+    | state == &quot;New York&quot; 
+    | state == &quot;Pennsylvania&quot;, 
+    &quot;Northeast&quot;,
+    
+    ifelse(
+    state == &quot;Delaware&quot; 
+    | state == &quot;District of Columbia&quot; 
+    | state == &quot;Florida&quot; 
+    | state == &quot;Georgia&quot; 
+    | state == &quot;Maryland&quot; 
+    | state == &quot;North Carolina&quot;
+    | state == &quot;South Carolina&quot; 
+    | state == &quot;Virginia&quot;
+    | state == &quot;West Virginia&quot; 
+    | state == &quot;Alabama&quot;
+    | state == &quot;Kentucky&quot; 
+    | state == &quot;Mississippi&quot;
+    | state == &quot;Tennessee&quot; 
+    | state == &quot;Arkansas&quot; 
+    | state == &quot;Louisiana&quot; 
+    | state == &quot;Oklahoma&quot; 
+    | state == &quot;Texas&quot;, 
+      &quot;South&quot;, 
+      
+    ifelse(
+      state == &quot;Arizona&quot;
+      | state == &quot;Colorado&quot;
+      | state == &quot;Idaho&quot;
+      | state == &quot;New Mexico&quot;
+      | state == &quot;Montana&quot;
+      | state == &quot;Utah&quot; 
+      | state == &quot; Nevada&quot;
+      | state == &quot;Wyoming&quot;
+      | state == &quot;Alaska&quot;
+      | state == &quot;California&quot;
+      | state == &quot;Hawaii&quot;
+      | state == &quot;Oregon&quot;
+      | state == &quot;Washington&quot;
+    ,  &quot;West&quot;, &quot;Midwest&quot;
+    )))
+  ) %&gt;%
+  mutate(NE = ifelse(region == &quot;Northeast&quot;, 1, 0)) %&gt;%
+  mutate(South = ifelse(region == &quot;South&quot;, 1, 0)) %&gt;%
+  mutate(West = ifelse(region == &quot;West&quot;, 1, 0)) %&gt;%
+  mutate(Midwest = ifelse(region == &quot;Midwest&quot;, 1, 0))
+
+survivor_data_final_including_2_41_42_43 = survivor_data_final
+
+write.csv(survivor_data_final_including_2_41_42_43, file = &quot;./data/survivor_data_final_including_2_41_42_43.csv&quot;)
+
+# preparing data for survival analysis
+
+## season 41 and 42, the longest survival time is 26 days, exclude these seasons
+## season 2, the longest survival time is 42 days, exclude this season
+## season 43 is incomplete, exclude this season
+
+survivor_data_final = survivor_data_final %&gt;%
+  filter(!(version_season %in% c(&quot;US02&quot;, &quot;US41&quot;, &quot;US42&quot;, &quot;US43&quot;)))
+
+## calculating percent NAs for all variables
+survivor_data_final %&gt;% summarise_all(list(name = ~sum(is.na(.))/length(.)))</code></pre>
+<pre><code>## # A tibble: 1 × 23
+##   version_seas…¹ full_…² age_d…³ race_…⁴ poc_n…⁵ date_…⁶ date_…⁷ occup…⁸ gende…⁹
+##            &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1              0       0       0   0.728 0.00549 0.00549   0.984 0.00549 0.00549
+## # … with 14 more variables: ethnicity_name &lt;dbl&gt;,
+## #   personality_type_binary_name &lt;dbl&gt;, episode_name &lt;dbl&gt;,
+## #   days_survived_name &lt;dbl&gt;, order_name &lt;dbl&gt;, contestant_count_name &lt;dbl&gt;,
+## #   result_name &lt;dbl&gt;, city_name &lt;dbl&gt;, state_name &lt;dbl&gt;, region_name &lt;dbl&gt;,
+## #   NE_name &lt;dbl&gt;, South_name &lt;dbl&gt;, West_name &lt;dbl&gt;, Midwest_name &lt;dbl&gt;, and
+## #   abbreviated variable names ¹​version_season_name, ²​full_name_name,
+## #   ³​age_during_show_name, ⁴​race_name, ⁵​poc_name, ⁶​date_of_birth_name, …</code></pre>
+<p>As a supplemental analysis, we also used the
+<code>confessionals</code> data from the same <code>survivoR</code>
+package to visualize the number of confessionals each contestant
+received. This data looked at all seasons as it was unrelated to the
+survival analysis and consistency in the datasets was not necessary.
+Nevertheless, this data also only looked at the U.S. edition of the
+show.</p>
+</div>
 <div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
@@ -492,6 +673,17 @@ class="footnote-back">↩︎</a></p></li>
 href="https://cran.r-project.org/web//packages/survivoR/survivoR.pdf"
 class="uri">https://cran.r-project.org/web//packages/survivoR/survivoR.pdf</a><a
 href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p> <a href="https://github.com/doehm/survivoR"
+class="uri">https://github.com/doehm/survivoR</a><a href="#fnref4"
+class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p><a
+href="https://cran.r-project.org/web//packages/survivoR/survivoR.pdf"
+class="uri">https://cran.r-project.org/web//packages/survivoR/survivoR.pdf</a><a
+href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p><a
+href="https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf"
+class="uri">https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf</a><a
+href="#fnref6" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 
