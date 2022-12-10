@@ -196,7 +196,7 @@ ggsurvplot(
   risk.table.col = "strata",# Risk table color by groups
   legend.labs =
     c("Midwest", "Northeast", "South", "West"),    # Change legend labels
-  risk.table.height = 0.5, # Useful to change when you have multiple groups
+  risk.table.height = 0.75, # Useful to change when you have multiple groups
   ggtheme = theme_bw()      # Change ggplot2 theme
 )
 ```
