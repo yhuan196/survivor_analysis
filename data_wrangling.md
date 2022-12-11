@@ -25,8 +25,9 @@ contestant_count_unique_rec = survivor_data_final %>%
   mutate(num = row_number())
 ```
 
-    ## `summarise()` has grouped output by 'version_season'. You can override using
-    ## the `.groups` argument.
+    ## `summarise()` has grouped output by
+    ## 'version_season'. You can override using the
+    ## `.groups` argument.
 
 ``` r
 ## summarizing the number of contestants per season & adding to joined dataset
@@ -121,7 +122,7 @@ survivor_data_final %>% summarise_all(list(name = ~sum(is.na(.))/length(.)))
     ## # A tibble: 1 × 23
     ##   version_seas…¹ full_…² age_d…³ race_…⁴ poc_n…⁵ date_…⁶ date_…⁷ occup…⁸ gende…⁹
     ##            <dbl>   <dbl>   <dbl>   <dbl>   <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
-    ## 1              0       0       0   0.728 0.00549 0.00549   0.981 0.00549 0.00549
+    ## 1              0       0       0   0.728 0.00549 0.00549   0.984 0.00549 0.00549
     ## # … with 14 more variables: ethnicity_name <dbl>,
     ## #   personality_type_binary_name <dbl>, episode_name <dbl>,
     ## #   days_survived_name <dbl>, order_name <dbl>, contestant_count_name <dbl>,
