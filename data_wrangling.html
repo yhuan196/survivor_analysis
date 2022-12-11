@@ -624,8 +624,8 @@ body {
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">num =</span> <span class="fu">row_number</span>())</span></code></pre></div>
 <pre><code>## `summarise()` has grouped output by
-## &#39;version_season&#39;. You can override using the
-## `.groups` argument.</code></pre>
+## &#39;version_season&#39;. You can override using
+## the `.groups` argument.</code></pre>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## summarizing the number of contestants per season &amp; adding to joined dataset</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>contestant_count_df <span class="ot">=</span> survivor_data_final <span class="sc">%&gt;%</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(version_season) <span class="sc">%&gt;%</span></span>

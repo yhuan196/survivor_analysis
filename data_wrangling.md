@@ -26,8 +26,8 @@ contestant_count_unique_rec = survivor_data_final %>%
 ```
 
     ## `summarise()` has grouped output by
-    ## 'version_season'. You can override using the
-    ## `.groups` argument.
+    ## 'version_season'. You can override using
+    ## the `.groups` argument.
 
 ``` r
 ## summarizing the number of contestants per season & adding to joined dataset
